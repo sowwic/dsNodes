@@ -29,8 +29,7 @@ class DsRaycast(ompx.MPxNode):
             inMesh = inMeshHandle.asMeshTransformed()
             fnMesh = om.MFnMesh(inMesh)
             inSource = om.MFloatPoint(inSourceHandle.asFloatVector())
-            xinAim = om.MFloatVector(inAimHandle.asFloatVector())
-            #dirVector = om.MFloatVector(inAim[0] - inSource[0], inAim[1] - inSource[1],inAim[2] - inSource[2] )
+            inAim = om.MFloatVector(inAimHandle.asFloatVector())
             hitPoint = om.MFloatPoint()
 
             
@@ -51,11 +50,18 @@ class DsRaycast(ompx.MPxNode):
                                                       None,
                                                       None                                            
                                                         )
-            print(intersection)
-            print(inSource.x, inSource.y, inSource.z)
-            print(inAim.x, inAim.y, inAim.z)
+                                                        
+            #print(intersection)
+            #print(inSource.x, inSource.y, inSource.z)
+            #print(inAim.x, inAim.y, inAim.z)
 
 
+            normalVector = om.MVector()
+            mHitPoint = om.MPoint(hitPoint)
+
+            fnMesh.getClosestNormal(mHitPoint, normalVector, om.MSpace.kWorld)
+
+            
             outHitHandle.setMFloatVector(om.MFloatVector(hitPoint))
             outHitHandle.setClean()
 
@@ -99,7 +105,7 @@ def nodeInitializer():
     DsRaycast.outHitPoint = numericAttributeFn.createPoint("hitPoint", 
                                               "hit"
                                               )
-    #numericAttributeFn.setWritable(0)
+    numericAttributeFn.setWritable(0)
 
     DsRaycast.addAttribute( DsRaycast.outHitPoint )
     
