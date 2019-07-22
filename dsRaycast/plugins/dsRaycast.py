@@ -3,58 +3,111 @@ import getpass, os, sys
 
 NAME = "dsRaycast"
 VERSION = "1.0"
-MAYAVERSION = "2019"
+MAYAVERSION = "2018"
 NODENAME = "dsRaycast"
-NODEID = om.MTypeId(0x09933)
+NODEID = om.MTypeId(0x09833)
 
-class MyNode(ompx.MPxNode):
+class DsRaycast(ompx.MPxNode):
    
-    inAttr = om.MObject()
-    outAttr = om.MObject()
+    inMesh = om.MObject()
+    inSource = om.MObject()
+    inAim = om.MObject()
+    outHitPoint = om.MObject()
    
     def __init__(self):
         ompx.MPxNode.__init__(self)
        
     def compute(self, pPlug, pDataBlock):
        
-        if pPlug == MyNode.outAttr:
-                   
-           inHandle = pDataBlock.inputValue(MyNode.inAttr)
-           outHandle = pDataBlock.outputValue(MyNode.outAttr)
-           
-           inValue = inHandle.asLong()
-           
-           outValue = inValue * 1.0
-           
-           outHandle.setFloat(outValue)
-           
-           outHandle.setClean()
-           
+        if pPlug == DsRaycast.outHitPoint:
+            #Handles
+            inMeshHandle = pDataBlock.inputValue(DsRaycast.inMesh)
+            inSourceHandle = pDataBlock.inputValue(DsRaycast.inSource)
+            inAimHandle = pDataBlock.inputValue(DsRaycast.inAim)
+            outHitHandle = pDataBlock.outputValue(DsRaycast.outHitPoint)
+
+            inMesh = inMeshHandle.asMeshTransformed()
+            fnMesh = om.MFnMesh(inMesh)
+            inSource = om.MFloatPoint(inSourceHandle.asFloatVector())
+            xinAim = om.MFloatVector(inAimHandle.asFloatVector())
+            #dirVector = om.MFloatVector(inAim[0] - inSource[0], inAim[1] - inSource[1],inAim[2] - inSource[2] )
+            hitPoint = om.MFloatPoint()
+
+            
+            intersection = fnMesh.closestIntersection(inSource,
+                                                      inAim,
+                                                      None,
+                                                      None,
+                                                      False,
+                                                      om.MSpace.kWorld,
+                                                      200000,
+                                                      True,
+                                                      #fnMesh.autoUniformGridParams(),
+                                                      None,
+                                                      hitPoint,
+                                                      None, 
+                                                      None,
+                                                      None,
+                                                      None,
+                                                      None                                            
+                                                        )
+            print(intersection)
+            print(inSource.x, inSource.y, inSource.z)
+            print(inAim.x, inAim.y, inAim.z)
+
+
+            outHitHandle.setMFloatVector(om.MFloatVector(hitPoint))
+            outHitHandle.setClean()
+
+          
         else:
            
             return om.kUnknownParameter
        
 def nodeCreator():
-   return ompx.asMPxPtr(MyNode())
+   return ompx.asMPxPtr(DsRaycast())
 
 def nodeInitializer():
    
+    typedAttributeFn = om.MFnTypedAttribute()
     numericAttributeFn = om.MFnNumericAttribute()
-   
-    MyNode.inAttr = numericAttributeFn.create("input", 
-                                             "input",
-                                             om.MFnNumericData.kLong,
-                                             0
-                                             )
-    MyNode.addAttribute(MyNode.inAttr)
-   
-    MyNode.outAttr = numericAttributeFn.create("output", 
-                                              "output",
-                                              om.MFnNumericData.kFloat
+    
+    ##IN
+    #Mesh
+    DsRaycast.inMesh = typedAttributeFn.create('targetMesh',
+                                                'tm',
+                                                om.MFnData.kMesh
+                                                )
+    DsRaycast.addAttribute(DsRaycast.inMesh)
+    typedAttributeFn.setReadable(0)
+    
+    #Source
+    DsRaycast.inSource = numericAttributeFn.createPoint("source", 
+                                              "srs"
                                               )
-    MyNode.addAttribute( MyNode.outAttr )
-   
-    MyNode.attributeAffects(MyNode.inAttr, MyNode.outAttr)
+    DsRaycast.addAttribute(DsRaycast.inSource)
+
+    #Aim
+    DsRaycast.inAim = numericAttributeFn.createPoint("aim", 
+                                              "aim"
+                                              )
+    DsRaycast.addAttribute(DsRaycast.inAim)
+
+    
+    
+    ##OUT
+    DsRaycast.outHitPoint = numericAttributeFn.createPoint("hitPoint", 
+                                              "hit"
+                                              )
+    #numericAttributeFn.setWritable(0)
+
+    DsRaycast.addAttribute( DsRaycast.outHitPoint )
+    
+    DsRaycast.attributeAffects(DsRaycast.inMesh, DsRaycast.outHitPoint)
+    DsRaycast.attributeAffects(DsRaycast.inSource, DsRaycast.outHitPoint)
+    DsRaycast.attributeAffects(DsRaycast.inAim, DsRaycast.outHitPoint)
+
+
 
 def initializePlugin(obj):
    plugin = ompx.MFnPlugin(obj, NAME, VERSION, MAYAVERSION)
