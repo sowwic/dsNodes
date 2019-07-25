@@ -18,12 +18,10 @@ def myCB(msg, plug, otherPlug, nodes):
     
     #Get parent/child
     parent, child = nodes[0], nodes[1]
-    parentPath = om2.MDagPath()
-    childPath = om2.MDagPath()
     parentPath = om2.MDagPath.getAPathTo(parent)
     childPath = om2.MDagPath.getAPathTo(child)
-    #print 'parent {}'.format(parentPath)
-    #print 'child: {}'.format(childPath)
+    print 'parent: {}'.format(parentPath) 
+    print 'childPath {}'.format(childPath)
     
     #Matricies
     parentMtx = om2.MDagPath.inclusiveMatrix(parentPath)

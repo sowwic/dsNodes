@@ -31,6 +31,7 @@ mc.connectAttr(dsRaycast + ".hitPoint", cube[0] + ".t")
 #Wheel test
 mesh = mc.polyPlane()
 srsLocs =[]
+wheelGeo =[]
 meshShape = mc.listRelatives(mesh, type='shape')[0]
 mc.move(0, 2, 0, mesh[0])
 mc.setAttr(mesh[1] + '.width', 50)
@@ -53,6 +54,7 @@ for side in ['L', 'R']:
     frontWheelAim = create.locator(parent=frontWheelSource, side=side, name='frontWheelAim')
     hit = create.transform(side=side, name='frontHitPt')
     frontWheelGeo = mc.polyCylinder(n='{}_frontWheel_PLY'.format(side), r=2.5)
+    wheelGeo.append(frontWheelGeo[0])
     mc.setAttr(frontWheelGeo[0] +'.rz', 90)
     mc.setAttr(frontWheelGeo[0] +'.ty', 2.559)
     mc.setAttr(frontWheelGeo[1] +'.h', 1)
@@ -74,8 +76,6 @@ for side in ['L', 'R']:
     dsRaycast + '.hit' > hit.translate
 
     
-
-
 z = -5
 for side in ['L', 'R']:
     backWheelSource = create.locator(side=side, name='backWheelSource')
@@ -83,6 +83,7 @@ for side in ['L', 'R']:
     backWheelAim = create.locator(parent=backWheelSource, side=side, name='backWheelAim',)
     hit = create.transform(side=side, name='backHitPt')
     backWheelGeo = mc.polyCylinder(n='{}_backWheel_PLY'.format(side), r=2.5)
+    wheelGeo.append(backWheelGeo[0])
     mc.setAttr(backWheelGeo[0] +'.rz', 90)
     mc.setAttr(backWheelGeo[0] +'.ty', 2.559)
     mc.setAttr(backWheelGeo[1] +'.h', 1)
@@ -105,6 +106,9 @@ for side in ['L', 'R']:
 
 for loc in srsLocs:
     constraintFn.parentConstraint(body[0], loc, mo=1)
+
+for geo in wheelGeo:
+    constraintFn.orientConstraint(body[0], geo, mo=1)
 
 
 
