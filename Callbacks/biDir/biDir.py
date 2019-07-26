@@ -12,11 +12,11 @@ def getMObject(node):
 
 class BiDirectionalConstr:
 
-    def __init__(self):
+    def __init__(self, objA, objB):
         self.driver = None
         self.offset = None
-        self.mFirstNode = getMObject('pCone1')
-        self.mSecondNode = getMObject('pCube1')
+        self.mFirstNode = getMObject(objA)
+        self.mSecondNode = getMObject(objB)
         self.updateOffset()
         
         callbacksDict = {
@@ -91,7 +91,8 @@ if __name__ == '__main__':
     mc.file(new=1, f=1)
     mc.polyCube()
     mc.polyCone()
+    mc.polyCylinder()
     mc.addAttr('pCone1', ln='eval', at='long', dv=1, min=0, max=1, k=1)
-    biConstr = BiDirectionalConstr()
-    
-    
+    mc.addAttr('pCube1', ln='eval', at='long', dv=1, min=0, max=1, k=1)
+    biConstr = BiDirectionalConstr('pCone1', 'pCube1')
+    biConstr02 =BiDirectionalConstr('pCube1', 'pCylinder1')
