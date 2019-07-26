@@ -13,6 +13,7 @@ def getMObject(node):
 class BiDirectionalConstr:
 
     def __init__(self, objA, objB):
+        mc.addAttr(objA, ln='eval', at='long', dv=1, min=0, max=1, k=1)
         self.driver = None
         self.offset = None
         self.mFirstNode = getMObject(objA)
@@ -52,7 +53,7 @@ class BiDirectionalConstr:
             if evalAttr:
                 self.updateOffset()
 
-        if not mc.getAttr(om2.MDagPath.getAPathTo(self.mFirstNode).partialPathName() + ".eval"):
+        if not mc.getAttr(evalAttr):
             return
 
         if not self.driver:
@@ -71,7 +72,6 @@ class BiDirectionalConstr:
             mc.warning("No offset")
             return
 
-
         parent, child = nodes[0], nodes[1]
         parentPath = om2.MDagPath.getAPathTo(parent)
 
@@ -89,10 +89,12 @@ class BiDirectionalConstr:
 
 if __name__ == '__main__':
     mc.file(new=1, f=1)
+    
+    #Test objects
     mc.polyCube()
     mc.polyCone()
     mc.polyCylinder()
-    mc.addAttr('pCone1', ln='eval', at='long', dv=1, min=0, max=1, k=1)
-    mc.addAttr('pCube1', ln='eval', at='long', dv=1, min=0, max=1, k=1)
+
+    #Contstraints
     biConstr = BiDirectionalConstr('pCone1', 'pCube1')
     biConstr02 =BiDirectionalConstr('pCube1', 'pCylinder1')
