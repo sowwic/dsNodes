@@ -72,13 +72,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(ProjectDir)\builds\debug\</OutDir>
     <IntDir>$(ProjectDir)\builds\intermediate\</IntDir>
-    <TargetExt>.dll</TargetExt>
+    <TargetExt>.mll</TargetExt>
     <IncludePath>D:\Program Files\Autodesk\Maya2019\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(ProjectDir)\builds\release\</OutDir>
     <IntDir>$(ProjectDir)\intermediate\release\</IntDir>
-    <TargetExt>.dll</TargetExt>
+    <TargetExt>.mll</TargetExt>
     <IncludePath>D:\Program Files\Autodesk\Maya2019\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -96,6 +96,10 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>D:\Program Files\Autodesk\Maya2019\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>OpenMaya.lib;OpenMayaRender.lib;OpenMayaUI.lib;Foundation.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -123,6 +127,8 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>D:\Program Files\Autodesk\Maya2019\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>OpenMaya.lib;OpenMayaRender.lib;OpenMayaUI.lib;Foundation.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
