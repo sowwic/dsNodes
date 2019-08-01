@@ -36,13 +36,17 @@ class DsRaycast(ompx.MPxNode):
             fnMesh = om.MFnMesh(inMesh)
             inSource = om.MFloatPoint(inSourceHandle.asFloatVector())
             inAim = om.MFloatVector(inAimHandle.asFloatVector())
+            #inAim = om.MFloatPoint(inSourceHandle.asFloatVector())
             inDistance = inDistanceHandle.asFloat()
             inBothWays = inBothWaysHandle.asBool()
             hitPoint = om.MFloatPoint()
 
+            aimVector = om.MFloatVector(inAim.x - inSource.x, inAim.y - inSource.y, inAim.z - inSource.z)
             
+            
+
             intersection = fnMesh.closestIntersection(inSource,
-                                                      inAim,
+                                                      aimVector,
                                                       None,
                                                       None,
                                                       False,

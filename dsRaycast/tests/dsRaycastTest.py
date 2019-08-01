@@ -8,7 +8,7 @@ mc.loadPlugin('C:\Users\dmitris\Documents\maya\scripts\dsNodes\dsRaycast\plugins
 
 ###### Test #########
 #Basic test
-'''
+
 mesh = mc.polyPlane()[0]
 mc.move(0, 4, 0, mesh)
 mc.scale(50, 50, 50, mesh)
@@ -113,6 +113,6 @@ for geo in wheelGeo:
 
 
 
-
+'''
     
 
