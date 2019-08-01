@@ -1,16 +1,17 @@
 global proc AEdsRaycastTemplate( string $nodeName )
 {
     editorTemplate -beginScrollLayout;
-        editorTemplate -beginLayout "dsRaycast Ray Attributes1" -collapse 0 ;
+        editorTemplate -beginLayout "dsRaycast Ray Attributes" -collapse 0 ;
 
             editorTemplate -addControl "source";
             editorTemplate -addControl "aim";
+            editorTemplate -addControl "offset";
         
         editorTemplate -endLayout;
 
         editorTemplate -beginLayout "dsRaycast Casting Attributes" -collapse 1 ;
 
-            editorTemplate -addControl "distance";
+            editorTemplate -addControl "castDistance";
             editorTemplate -addControl "bothWays";
         
         editorTemplate -endLayout;

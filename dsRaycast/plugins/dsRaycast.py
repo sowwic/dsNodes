@@ -14,6 +14,7 @@ class DsRaycast(ompx.MPxNode):
     inAim = om.MObject()
     inDistance = om.MObject()
     inBothWays = om.MObject()
+    inOffset = om.MObject()
     outHitPoint = om.MObject()
     outNormal = om.MObject()
    
@@ -29,20 +30,19 @@ class DsRaycast(ompx.MPxNode):
             inAimHandle = pDataBlock.inputValue(DsRaycast.inAim)
             inDistanceHandle = pDataBlock.inputValue(DsRaycast.inDistance)
             inBothWaysHandle = pDataBlock.inputValue(DsRaycast.inBothWays)
+            inOffsetHandle = pDataBlock.inputValue(DsRaycast.inOffset)
             outHitHandle = pDataBlock.outputValue(DsRaycast.outHitPoint)
             outNormalhandle = pDataBlock.outputValue(DsRaycast.outNormal)
-
-            inMesh = inMeshHandle.asMeshTransformed()
-            fnMesh = om.MFnMesh(inMesh)
+            
+            #inMesh = inMeshHandle.asMeshTransformed()
+            fnMesh = om.MFnMesh(inMeshHandle.data())
             inSource = om.MFloatPoint(inSourceHandle.asFloatVector())
             inAim = om.MFloatVector(inAimHandle.asFloatVector())
-            #inAim = om.MFloatPoint(inSourceHandle.asFloatVector())
             inDistance = inDistanceHandle.asFloat()
             inBothWays = inBothWaysHandle.asBool()
+            inOffset = om.MFloatPoint(inOffsetHandle.asFloatVector())
             hitPoint = om.MFloatPoint()
-
-            aimVector = om.MFloatVector(inAim.x - inSource.x, inAim.y - inSource.y, inAim.z - inSource.z)
-            
+            aimVector = om.MFloatVector(inAim.x - inSource.x, inAim.y - inSource.y, inAim.z - inSource.z) #get vector between source and aim points
             
 
             intersection = fnMesh.closestIntersection(inSource,
@@ -66,8 +66,13 @@ class DsRaycast(ompx.MPxNode):
             normalVector = om.MVector()
             mHitPoint = om.MPoint(hitPoint)
             fnMesh.getClosestNormal(mHitPoint, normalVector, om.MSpace.kWorld)
+            
+            #Apply offsets
+            hitPoint.x += inOffset.x
+            hitPoint.y += inOffset.y
+            hitPoint.z += inOffset.z
 
-
+            #Setting outputs to handles
             outHitHandle.setMFloatVector(om.MFloatVector(hitPoint))
             outNormalhandle.setMFloatVector(om.MFloatVector(normalVector))
 
@@ -101,13 +106,17 @@ def nodeInitializer():
     DsRaycast.inAim = numericAttributeFn.createPoint("aim", "aim")
     DsRaycast.addAttribute(DsRaycast.inAim)
 
-    #Distance
-    DsRaycast.inDistance = numericAttributeFn.create('distance', 'dis', om.MFnNumericData.kFloat, 100)
+    #Cast distance
+    DsRaycast.inDistance = numericAttributeFn.create('castDistance', 'dis', om.MFnNumericData.kFloat, 100)
     DsRaycast.addAttribute(DsRaycast.inDistance)
 
     #Test direction
     DsRaycast.inBothWays = numericAttributeFn.create('bothWays', 'bw', om.MFnNumericData.kBoolean, 1)
     DsRaycast.addAttribute(DsRaycast.inBothWays)
+
+    #Cast Distance
+    DsRaycast.inOffset = numericAttributeFn.createPoint('offset', 'offs')
+    DsRaycast.addAttribute(DsRaycast.inOffset)
 
 
     ##OUT
@@ -126,6 +135,7 @@ def nodeInitializer():
     DsRaycast.attributeAffects(DsRaycast.inMesh, DsRaycast.outHitPoint)
     DsRaycast.attributeAffects(DsRaycast.inSource, DsRaycast.outHitPoint)
     DsRaycast.attributeAffects(DsRaycast.inAim, DsRaycast.outHitPoint)
+    DsRaycast.attributeAffects(DsRaycast.inOffset, DsRaycast.outHitPoint)
 
     DsRaycast.attributeAffects(DsRaycast.inMesh, DsRaycast.outNormal)
     DsRaycast.attributeAffects(DsRaycast.inSource, DsRaycast.outNormal)
