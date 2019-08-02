@@ -1,6 +1,7 @@
 import maya.cmds as mc
 from rigging.functions import *
 
+
 mc.file(new=1,f=1)
 mc.unloadPlugin("dsRaycast")
 
@@ -23,9 +24,9 @@ mc.connectAttr(mesh + '.worldMesh', dsRaycast + '.tm')
 source.translate > dsRaycast + '.srs'
 aim.translate > dsRaycast + '.aim'
 
-cube = mc.polyCube(n='testBoi00')
+testObj = mc.polyCone(n='testBoi00')
 
-mc.connectAttr(dsRaycast + ".hitPoint", cube[0] + ".t")
+mc.connectAttr(dsRaycast + ".hitPoint", testObj[0] + ".t")
 
 '''
 #Wheel test
@@ -109,10 +110,4 @@ for loc in srsLocs:
 
 for geo in wheelGeo:
     constraintFn.orientConstraint(body[0], geo, mo=1)
-
-
-
-
 '''
-    
-
