@@ -24,7 +24,7 @@ mc.connectAttr(mesh + '.worldMesh', dsRaycast + '.tm')
 source.translate > dsRaycast + '.srs'
 aim.translate > dsRaycast + '.aim'
 
-testObj = mc.polyCone(n='testBoi00')
+testObj = mc.polyCube(n='testBoi00')
 
 mc.connectAttr(dsRaycast + ".hitPoint", testObj[0] + ".t")
 
