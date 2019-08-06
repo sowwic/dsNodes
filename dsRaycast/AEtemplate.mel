@@ -3,6 +3,7 @@ global proc AEdsRaycastTemplate( string $nodeName )
     editorTemplate -beginScrollLayout;
         editorTemplate -beginLayout "Ray Attributes" -collapse 0 ;
 
+            editorTemplate -addControl "mode";
             editorTemplate -addControl "source";
             editorTemplate -addControl "aim";
             

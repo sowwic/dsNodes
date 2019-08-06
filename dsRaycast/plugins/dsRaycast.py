@@ -10,6 +10,7 @@ NODEID = om.MTypeId(0x09833)
 class DsRaycast(ompx.MPxNode):
    
     inMesh = om.MObject()
+    inMode = om.MObject()
     inSource = om.MObject()
     inAim = om.MObject()
     inUpVector = om.MObject()
@@ -35,6 +36,7 @@ class DsRaycast(ompx.MPxNode):
         if pPlug in plugsToEval:
             #Handles
             inMeshHandle = pDataBlock.inputValue(DsRaycast.inMesh)
+            inModeHandle = pDataBlock.inputValue(DsRaycast.inMode)
             inSourceHandle = pDataBlock.inputValue(DsRaycast.inSource)
             inAimHandle = pDataBlock.inputValue(DsRaycast.inAim)
             inUpVectorHandle = pDataBlock.inputValue(DsRaycast.inUpVector)
@@ -152,7 +154,13 @@ def nodeInitializer():
     DsRaycast.inMesh = typedAttributeFn.create('targetMesh','tm', om.MFnData.kMesh)
     DsRaycast.addAttribute(DsRaycast.inMesh)
     typedAttributeFn.setReadable(0)
-    
+
+    #Mode
+    DsRaycast.inMode = enumAttrFn.create('mode', 'm', 0)
+    enumAttrFn.addField('Between two', 0)
+    enumAttrFn.addField('From single', 1)
+    DsRaycast.addAttribute(DsRaycast.inMode)
+
     #Source
     DsRaycast.inSource = numericAttributeFn.createPoint("source", "srs")
     DsRaycast.addAttribute(DsRaycast.inSource)
