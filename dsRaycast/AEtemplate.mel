@@ -16,6 +16,13 @@ global proc AEdsRaycastTemplate( string $nodeName )
         
         editorTemplate -endLayout;
 
+        editorTemplate -beginLayout "dsRaycast Hitpoint Attributes" -collapse 1 ;
+
+            editorTemplate -addControl "upVector";
+            editorTemplate -addControl "rotate";
+        
+        editorTemplate -endLayout;
+
         AEdependNodeTemplate $nodeName;
     
         editorTemplate -addExtraControls;

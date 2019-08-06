@@ -22,6 +22,7 @@ class DsRaycast(ompx.MPxNode):
     outRotationY = om.MObject()
     outRotationZ = om.MObject()
     outRotation = om.MObject()
+    outHitDistance = om.MObject()
     
     def __init__(self):
         ompx.MPxNode.__init__(self)
@@ -42,6 +43,7 @@ class DsRaycast(ompx.MPxNode):
             outRotationXHandle = pDataBlock.outputValue(DsRaycast.outRotationX)
             outRotationYHandle = pDataBlock.outputValue(DsRaycast.outRotationY)
             outRotationZHandle = pDataBlock.outputValue(DsRaycast.outRotationZ)
+            outHitDistanceHandle = pDataBlock.outputValue(DsRaycast.outHitDistance)
 
             
             #Get data off handles
@@ -53,8 +55,11 @@ class DsRaycast(ompx.MPxNode):
             inBothWays = inBothWaysHandle.asBool()
             inOffset = om.MFloatPoint(inOffsetHandle.asFloatVector())
             hitPoint = om.MFloatPoint()
-            aimVector = om.MFloatVector(inAim.x - inSource.x, inAim.y - inSource.y, inAim.z - inSource.z) #get vector between source and aim points
-            
+            aimVector = om.MFloatVector(inAim.x - inSource.x, inAim.y - inSource.y, inAim.z - inSource.z).normal() #get vector between source and aim points
+
+            util = om.MScriptUtil()
+            util.createFromDouble(0)
+            hitRayParamPtr = util.asFloatPtr()
 
             intersection = fnMesh.closestIntersection(inSource,
                                                       aimVector,
@@ -66,7 +71,7 @@ class DsRaycast(ompx.MPxNode):
                                                       inBothWays,
                                                       None,
                                                       hitPoint,
-                                                      None, 
+                                                      hitRayParamPtr, 
                                                       None,
                                                       None,
                                                       None,
@@ -76,6 +81,8 @@ class DsRaycast(ompx.MPxNode):
             normalVector = om.MVector()
             mHitPoint = om.MPoint(hitPoint)
             fnMesh.getClosestNormal(mHitPoint, normalVector, om.MSpace.kWorld)
+
+            hitRayParam = om.MScriptUtil.getFloat(hitRayParamPtr)
             
             #Apply offsets
             hitPoint.x += inOffset.x
@@ -106,12 +113,14 @@ class DsRaycast(ompx.MPxNode):
             outRotationXHandle.setMAngle(eulerRotX)
             outRotationYHandle.setMAngle(eulerRotY)
             outRotationZHandle.setMAngle(eulerRotZ)
+            outHitDistanceHandle.setFloat(hitRayParam)
 
             outHitHandle.setClean()
             outNormalHandle.setClean()
             outRotationXHandle.setClean()
             outRotationYHandle.setClean()
             outRotationZHandle.setClean()
+            outHitDistanceHandle.setClean()
 
         else:
             return om.kUnknownParameter
@@ -140,7 +149,7 @@ def nodeInitializer():
     DsRaycast.addAttribute(DsRaycast.inAim)
 
     #Up vector
-    DsRaycast.inUpVector = numericAttributeFn.createPoint('upvector', 'up')
+    DsRaycast.inUpVector = numericAttributeFn.createPoint('upVector', 'up')
     DsRaycast.addAttribute(DsRaycast.inUpVector)
 
     #Cast distance
@@ -167,12 +176,17 @@ def nodeInitializer():
     numericAttributeFn.setWritable(0)
     DsRaycast.addAttribute(DsRaycast.outNormal)
     
-
+    #Rotation
     DsRaycast.outRotationX = unitAttrFn.create('rotateX', 'rx', om.MFnUnitAttribute.kAngle)
     DsRaycast.outRotationY = unitAttrFn.create('rotateY', 'ry', om.MFnUnitAttribute.kAngle)
     DsRaycast.outRotationZ = unitAttrFn.create('rotateZ', 'rz', om.MFnUnitAttribute.kAngle)
     DsRaycast.outRotation = numericAttributeFn.create('rotate', 'rs', DsRaycast.outRotationX, DsRaycast.outRotationY, DsRaycast.outRotationZ)
     DsRaycast.addAttribute(DsRaycast.outRotation)
+
+    #Hit Distance
+    DsRaycast.outHitDistance = numericAttributeFn.create('hitDistance', 'hd', om.MFnNumericData.kFloat)
+    numericAttributeFn.setWritable(0)
+    DsRaycast.addAttribute(DsRaycast.outHitDistance)
  
     
 
@@ -190,6 +204,11 @@ def nodeInitializer():
     DsRaycast.attributeAffects(DsRaycast.inSource, DsRaycast.outRotation)
     DsRaycast.attributeAffects(DsRaycast.inAim, DsRaycast.outRotation)
     DsRaycast.attributeAffects(DsRaycast.inUpVector, DsRaycast.outRotation)
+
+    DsRaycast.attributeAffects(DsRaycast.inMesh, DsRaycast.outHitDistance)
+    DsRaycast.attributeAffects(DsRaycast.inSource, DsRaycast.outHitDistance)
+    DsRaycast.attributeAffects(DsRaycast.inAim, DsRaycast.outHitDistance)
+    DsRaycast.attributeAffects(DsRaycast.inUpVector, DsRaycast.outHitDistance)
 
 
 def initializePlugin(obj):
