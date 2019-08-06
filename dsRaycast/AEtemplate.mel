@@ -1,25 +1,27 @@
 global proc AEdsRaycastTemplate( string $nodeName )
 {
     editorTemplate -beginScrollLayout;
-        editorTemplate -beginLayout "dsRaycast Ray Attributes" -collapse 0 ;
+        editorTemplate -beginLayout "Ray Attributes" -collapse 0 ;
 
             editorTemplate -addControl "source";
             editorTemplate -addControl "aim";
-            editorTemplate -addControl "offset";
+            
         
         editorTemplate -endLayout;
 
-        editorTemplate -beginLayout "dsRaycast Casting Attributes" -collapse 1 ;
+        editorTemplate -beginLayout "Casting Attributes" -collapse 0 ;
 
             editorTemplate -addControl "castDistance";
             editorTemplate -addControl "bothWays";
         
         editorTemplate -endLayout;
 
-        editorTemplate -beginLayout "dsRaycast Hitpoint Attributes" -collapse 1 ;
+        editorTemplate -beginLayout "Hitpoint Attributes" -collapse 0 ;
 
             editorTemplate -addControl "upVector";
             editorTemplate -addControl "rotate";
+            editorTemplate -addControl "offsetVector";
+            editorTemplate -addControl "offset";
         
         editorTemplate -endLayout;
 

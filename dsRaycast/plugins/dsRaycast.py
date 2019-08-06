@@ -16,6 +16,7 @@ class DsRaycast(ompx.MPxNode):
     inDistance = om.MObject()
     inBothWays = om.MObject()
     inOffset = om.MObject()
+    inOfsVectorEnum = om.MObject()
     outHitPoint = om.MObject()
     outNormal = om.MObject()
     outRotationX = om.MObject()
@@ -27,8 +28,7 @@ class DsRaycast(ompx.MPxNode):
     def __init__(self):
         ompx.MPxNode.__init__(self)
 
-    
-       
+
     def compute(self, pPlug, pDataBlock):
         plugsToEval = [DsRaycast.outHitPoint, DsRaycast.outNormal, DsRaycast.outRotation, DsRaycast.outHitDistance]
 
@@ -41,6 +41,7 @@ class DsRaycast(ompx.MPxNode):
             inDistanceHandle = pDataBlock.inputValue(DsRaycast.inDistance)
             inBothWaysHandle = pDataBlock.inputValue(DsRaycast.inBothWays)
             inOffsetHandle = pDataBlock.inputValue(DsRaycast.inOffset)
+            inOfsVectorEnumHandle = pDataBlock.inputValue(DsRaycast.inOfsVectorEnum)
             outHitHandle = pDataBlock.outputValue(DsRaycast.outHitPoint)
             outNormalHandle = pDataBlock.outputValue(DsRaycast.outNormal)
             outRotationXHandle = pDataBlock.outputValue(DsRaycast.outRotationX)
@@ -56,7 +57,8 @@ class DsRaycast(ompx.MPxNode):
             inUpVector = om.MVector(inUpVectorHandle.asVector())
             inDistance = inDistanceHandle.asFloat()
             inBothWays = inBothWaysHandle.asBool()
-            inOffset = om.MFloatPoint(inOffsetHandle.asFloatVector())
+            inOffset = inOffsetHandle.asFloat()
+            inOfsVectorEnum = inOfsVectorEnumHandle.asBool()
             hitPoint = om.MFloatPoint()
             aimVector = om.MFloatVector(inAim.x - inSource.x, inAim.y - inSource.y, inAim.z - inSource.z).normal() #get vector between source and aim points
 
@@ -78,9 +80,9 @@ class DsRaycast(ompx.MPxNode):
                                                       None,
                                                       None,
                                                       None,
-                                                      None                                            
+                                                      None
                                                         )
-            #Getting normal             
+            #Getting normal
             normalVector = om.MVector()
             mHitPoint = om.MPoint(hitPoint)
             fnMesh.getClosestNormal(mHitPoint, normalVector, om.MSpace.kWorld)
@@ -88,9 +90,16 @@ class DsRaycast(ompx.MPxNode):
             hitRayParam = om.MScriptUtil.getFloat(hitRayParamPtr)
             
             #Apply offsets
-            hitPoint.x += inOffset.x
-            hitPoint.y += inOffset.y
-            hitPoint.z += inOffset.z
+            if inOfsVectorEnum:
+                fNormalVector = om.MFloatVector(normalVector)
+                offsetPoint = om.MFloatPoint(inOffset * fNormalVector.x, inOffset * fNormalVector.y, inOffset * fNormalVector.z)
+
+            else:
+                offsetPoint = om.MFloatPoint(inOffset * aimVector.x, inOffset * aimVector.y, inOffset * aimVector.z)
+
+            hitPoint.x += offsetPoint.x
+            hitPoint.y += offsetPoint.y
+            hitPoint.z += offsetPoint.z
 
             #---------Creating Rotation
             util = om.MScriptUtil()
@@ -136,6 +145,7 @@ def nodeInitializer():
     typedAttributeFn = om.MFnTypedAttribute()
     numericAttributeFn = om.MFnNumericAttribute()
     unitAttrFn = om.MFnUnitAttribute()
+    enumAttrFn = om.MFnEnumAttribute()
     
     ##IN
     #Mesh
@@ -164,9 +174,14 @@ def nodeInitializer():
     DsRaycast.addAttribute(DsRaycast.inBothWays)
 
     #Offset
-    DsRaycast.inOffset = numericAttributeFn.createPoint('offset', 'offs')
+    DsRaycast.inOffset = numericAttributeFn.create('offset', 'offs', om.MFnNumericData.kFloat, 0)
     DsRaycast.addAttribute(DsRaycast.inOffset)
 
+    #Offset vector enum switch
+    DsRaycast.inOfsVectorEnum = enumAttrFn.create('offsetVector', 'offsv', 0)
+    enumAttrFn.addField('Aim', 0)
+    enumAttrFn.addField('Normal', 1)
+    DsRaycast.addAttribute(DsRaycast.inOfsVectorEnum)
 
     ##OUT
     #Hitpoint
