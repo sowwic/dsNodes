@@ -26,10 +26,13 @@ class DsRaycast(ompx.MPxNode):
     
     def __init__(self):
         ompx.MPxNode.__init__(self)
+
+    
        
     def compute(self, pPlug, pDataBlock):
-        if pPlug == DsRaycast.outHitPoint or pPlug == DsRaycast.outNormal or pPlug == DsRaycast.outRotationX:
+        plugsToEval = [DsRaycast.outHitPoint, DsRaycast.outNormal, DsRaycast.outRotation, DsRaycast.outHitDistance]
 
+        if pPlug in plugsToEval:
             #Handles
             inMeshHandle = pDataBlock.inputValue(DsRaycast.inMesh)
             inSourceHandle = pDataBlock.inputValue(DsRaycast.inSource)
