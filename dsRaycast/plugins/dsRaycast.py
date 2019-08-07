@@ -221,6 +221,7 @@ def nodeInitializer():
     DsRaycast.attributeAffects(DsRaycast.inSource, DsRaycast.outHitPoint)
     DsRaycast.attributeAffects(DsRaycast.inAim, DsRaycast.outHitPoint)
     DsRaycast.attributeAffects(DsRaycast.inOffset, DsRaycast.outHitPoint)
+    DsRaycast.attributeAffects(DsRaycast.inOfsVectorEnum, DsRaycast.outHitPoint)
 
     DsRaycast.attributeAffects(DsRaycast.inMesh, DsRaycast.outNormal)
     DsRaycast.attributeAffects(DsRaycast.inSource, DsRaycast.outNormal)
