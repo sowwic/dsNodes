@@ -21,7 +21,7 @@ aim.translate = [0, 1, 0]
 dsRaycast = mc.createNode('dsRaycast')
 
 mc.connectAttr(mesh + '.worldMesh', dsRaycast + '.tm')
-source.translate > dsRaycast + '.srs'
+source.worldMatrix > dsRaycast + '.srs'
 aim.translate > dsRaycast + '.aim'
 
 testObj = mc.polyCube(n='testBoi00')

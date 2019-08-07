@@ -11,8 +11,9 @@ class DsRaycast(ompx.MPxNode):
    
     inMesh = om.MObject()
     inMode = om.MObject()
-    inSource = om.MObject()
+    inSourceMatrix = om.MObject()
     inAim = om.MObject()
+    inAimAxis = om.MObject()
     inUpVector = om.MObject()
     inDistance = om.MObject()
     inBothWays = om.MObject()
@@ -25,8 +26,8 @@ class DsRaycast(ompx.MPxNode):
     outRotationZ = om.MObject()
     outRotation = om.MObject()
     outHitDistance = om.MObject()
-    inSourceMatrix = om.MObject()
     
+
     def __init__(self):
         ompx.MPxNode.__init__(self)
 
@@ -37,10 +38,11 @@ class DsRaycast(ompx.MPxNode):
 
         if pPlug in plugsToEval:
             #Handles
-            inMeshHandle = pDataBlock.inputValue(DsRaycast.inMesh)
+            inMeshHandle = pDataBlock.inputValue(DsRaycast.inMesh)  #Target mesh
             inModeHandle = pDataBlock.inputValue(DsRaycast.inMode)
-            inSourceHandle = pDataBlock.inputValue(DsRaycast.inSource)
+            inSourceMatrixHandle = pDataBlock.inputValue(DsRaycast.inSourceMatrix)  
             inAimHandle = pDataBlock.inputValue(DsRaycast.inAim)
+            inAimAxisHandle = pDataBlock.inputValue(DsRaycast.inAimAxis)
             inUpVectorHandle = pDataBlock.inputValue(DsRaycast.inUpVector)
             inDistanceHandle = pDataBlock.inputValue(DsRaycast.inDistance)
             inBothWaysHandle = pDataBlock.inputValue(DsRaycast.inBothWays)
@@ -52,11 +54,10 @@ class DsRaycast(ompx.MPxNode):
             outRotationYHandle = pDataBlock.outputValue(DsRaycast.outRotationY)
             outRotationZHandle = pDataBlock.outputValue(DsRaycast.outRotationZ)
             outHitDistanceHandle = pDataBlock.outputValue(DsRaycast.outHitDistance)
-
             
+
             #Get data off handles
             fnMesh = om.MFnMesh(inMeshHandle.data())
-            inSource = om.MFloatPoint(inSourceHandle.asFloatVector())
             inAim = om.MFloatVector(inAimHandle.asFloatVector())
             inUpVector = om.MVector(inUpVectorHandle.asVector())
             inDistance = inDistanceHandle.asFloat()
@@ -65,24 +66,35 @@ class DsRaycast(ompx.MPxNode):
             inOffset = inOffsetHandle.asFloat()
             inOfsVectorEnum = inOfsVectorEnumHandle.asBool()
             hitPoint = om.MFloatPoint()
+            inSourceMatrix = om.MMatrix(inSourceMatrixHandle.asMatrix())
+            inAimAxis = inAimAxisHandle.asShort()
 
+            #Getting axis vectors from source matrix
+            sourceAxisX = [inSourceMatrix(0, 0), inSourceMatrix(0, 1), inSourceMatrix(0, 2)]
+            sourceAxisY = [inSourceMatrix(1, 0), inSourceMatrix(1, 1), inSourceMatrix(1, 2)]
+            sourceAxisZ = [inSourceMatrix(2, 0), inSourceMatrix(2, 1), inSourceMatrix(3, 2)]
             
-            
+            #Getting source point from matrix
+            sourceTranslate = [inSourceMatrix(3, 0), inSourceMatrix(3, 1), inSourceMatrix(3, 2)]
+            sourcePoint = om.MFloatPoint(sourceTranslate[0], sourceTranslate[1], sourceTranslate[2])
+
             #Getting aim vector
             if inMode == 0:
-                aimVector = om.MFloatVector(inAim.x - inSource.x, inAim.y - inSource.y, inAim.z - inSource.z).normal() #get vector between source and aim points
+                aimVector = om.MFloatVector(inAim.x - sourceTranslate[0], inAim.y - sourceTranslate[1], inAim.z - sourceTranslate[2]) # Get relative vector
             
             elif inMode == 1:
-                aimVector = om.MFloatVector(inSource.x * 0, inSource.y * 0, inSource.z * 1).normal()
-              
-                
-            
+                if inAimAxis == 0:
+                    aimVector = om.MFloatVector(sourceAxisX[0], sourceAxisX[1], sourceAxisX[2])
+                elif inAimAxis == 1:
+                    aimVector = om.MFloatVector(sourceAxisY[0], sourceAxisY[1], sourceAxisY[2])
+                elif inAimAxis == 2:
+                    aimVector = om.MFloatVector(sourceAxisZ[0], sourceAxisZ[1], sourceAxisZ[2])
 
             util = om.MScriptUtil()
             util.createFromDouble(0)
             hitRayParamPtr = util.asFloatPtr()
 
-            intersection = fnMesh.closestIntersection(inSource,
+            intersection = fnMesh.closestIntersection(sourcePoint,
                                                       aimVector,
                                                       None,
                                                       None,
@@ -98,6 +110,7 @@ class DsRaycast(ompx.MPxNode):
                                                       None,
                                                       None
                                                         )
+
             #Getting normal
             normalVector = om.MVector()
             mHitPoint = om.MPoint(hitPoint)
@@ -176,12 +189,15 @@ def nodeInitializer():
     enumAttrFn.addField('From single', 1)
     DsRaycast.addAttribute(DsRaycast.inMode)
 
-    #Source
-    DsRaycast.inSource = numericAttributeFn.createPoint("source", "srs")
-    DsRaycast.addAttribute(DsRaycast.inSource)
+    #Aim Axis
+    DsRaycast.inAimAxis = enumAttrFn.create('aimAxis', 'axis', 0)
+    enumAttrFn.addField('X', 0)
+    enumAttrFn.addField('Y', 1)
+    enumAttrFn.addField('Z', 2)
+    DsRaycast.addAttribute(DsRaycast.inAimAxis)
 
     #Source Matrix
-    DsRaycast.inSourceMatrix = matrixAttrFn.create('sourceMatrix', 'smtx')
+    DsRaycast.inSourceMatrix = matrixAttrFn.create('sourceMatrix', 'srs')
     DsRaycast.addAttribute(DsRaycast.inSourceMatrix)
 
     #Aim
@@ -236,28 +252,33 @@ def nodeInitializer():
 
     #Affects
     DsRaycast.attributeAffects(DsRaycast.inMesh, DsRaycast.outHitPoint)
-    DsRaycast.attributeAffects(DsRaycast.inSource, DsRaycast.outHitPoint)
     DsRaycast.attributeAffects(DsRaycast.inAim, DsRaycast.outHitPoint)
+    DsRaycast.attributeAffects(DsRaycast.inAimAxis, DsRaycast.outHitPoint)
     DsRaycast.attributeAffects(DsRaycast.inOffset, DsRaycast.outHitPoint)
     DsRaycast.attributeAffects(DsRaycast.inOfsVectorEnum, DsRaycast.outHitPoint)
+    DsRaycast.attributeAffects(DsRaycast.inSourceMatrix, DsRaycast.outHitPoint)
     DsRaycast.attributeAffects(DsRaycast.inMode, DsRaycast.outHitPoint)
 
     DsRaycast.attributeAffects(DsRaycast.inMesh, DsRaycast.outNormal)
-    DsRaycast.attributeAffects(DsRaycast.inSource, DsRaycast.outNormal)
+    DsRaycast.attributeAffects(DsRaycast.inSourceMatrix, DsRaycast.outNormal)
+    DsRaycast.attributeAffects(DsRaycast.inAimAxis, DsRaycast.outNormal)
     DsRaycast.attributeAffects(DsRaycast.inAim, DsRaycast.outNormal)
     DsRaycast.attributeAffects(DsRaycast.inMode, DsRaycast.outNormal)
+    DsRaycast.attributeAffects(DsRaycast.inAimAxis, DsRaycast.outNormal)
 
     DsRaycast.attributeAffects(DsRaycast.inMesh, DsRaycast.outRotation)
-    DsRaycast.attributeAffects(DsRaycast.inSource, DsRaycast.outRotation)
+    DsRaycast.attributeAffects(DsRaycast.inSourceMatrix, DsRaycast.outRotation)
     DsRaycast.attributeAffects(DsRaycast.inAim, DsRaycast.outRotation)
     DsRaycast.attributeAffects(DsRaycast.inUpVector, DsRaycast.outRotation)
-    DsRaycast.attributeAffects(DsRaycast.inMode, DsRaycast.outNormal)
+    DsRaycast.attributeAffects(DsRaycast.inMode, DsRaycast.outRotation)
+    DsRaycast.attributeAffects(DsRaycast.inAimAxis, DsRaycast.outRotation)
 
     DsRaycast.attributeAffects(DsRaycast.inMesh, DsRaycast.outHitDistance)
-    DsRaycast.attributeAffects(DsRaycast.inSource, DsRaycast.outHitDistance)
+    DsRaycast.attributeAffects(DsRaycast.inSourceMatrix, DsRaycast.outHitDistance)
     DsRaycast.attributeAffects(DsRaycast.inAim, DsRaycast.outHitDistance)
     DsRaycast.attributeAffects(DsRaycast.inUpVector, DsRaycast.outHitDistance)
     DsRaycast.attributeAffects(DsRaycast.inMode, DsRaycast.outHitDistance)
+    DsRaycast.attributeAffects(DsRaycast.inAimAxis, DsRaycast.outHitDistance)
 
 
 def initializePlugin(obj):
