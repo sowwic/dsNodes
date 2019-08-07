@@ -72,7 +72,7 @@ class DsRaycast(ompx.MPxNode):
             #Getting axis vectors from source matrix
             sourceAxisX = [inSourceMatrix(0, 0), inSourceMatrix(0, 1), inSourceMatrix(0, 2)]
             sourceAxisY = [inSourceMatrix(1, 0), inSourceMatrix(1, 1), inSourceMatrix(1, 2)]
-            sourceAxisZ = [inSourceMatrix(2, 0), inSourceMatrix(2, 1), inSourceMatrix(3, 2)]
+            sourceAxisZ = [inSourceMatrix(2, 0), inSourceMatrix(2, 1), inSourceMatrix(2, 2)]
             
             #Getting source point from matrix
             sourceTranslate = [inSourceMatrix(3, 0), inSourceMatrix(3, 1), inSourceMatrix(3, 2)]
