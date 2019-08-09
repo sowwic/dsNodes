@@ -9,7 +9,7 @@ mc.loadPlugin('C:\Users\dmitris\Documents\maya\scripts\dsNodes\dsDrawVector\plug
 sourceObj = mc.polyCube()[0]
 aimObj = mc.polyCube()[0]
 
-vectorNode = mc.createNode('footPrint')
+vectorNode = mc.createNode('drawVector')
 mc.connectAttr(sourceObj + '.t', vectorNode + '.sp')
 mc.connectAttr(aimObj + '.t', vectorNode + '.ap')
 

@@ -11,7 +11,7 @@ def maya_useNewAPI():
     """
     pass
 
-class footPrint(omui.MPxLocatorNode):
+class drawVector(omui.MPxLocatorNode):
 
     id = om.MTypeId( 0x80067 )
     drawDbClassification = "drawdb/geometry/vector"
@@ -26,7 +26,7 @@ class footPrint(omui.MPxLocatorNode):
 
     @staticmethod
     def creator():
-        return footPrint()
+        return drawVector()
 
     @staticmethod
     def initialize():
@@ -34,21 +34,21 @@ class footPrint(omui.MPxLocatorNode):
         numericFn = om.MFnNumericAttribute()
         enumFn = om.MFnEnumAttribute()
 
-        footPrint.size = unitFn.create( "size", "sz", om.MFnUnitAttribute.kDistance )
+        drawVector.size = unitFn.create( "size", "sz", om.MFnUnitAttribute.kDistance )
         unitFn.default = om.MDistance(1.0)
         
         ######VECTOR
-        footPrint.drawMode = enumFn.create('drawingMode', 'drm', 0)
+        drawVector.drawMode = enumFn.create('drawingMode', 'drm', 0)
         enumFn.addField('Between two', 0)
         enumFn.addField('From single', 1)
-        footPrint.sourcePt = numericFn.createPoint('sourcePoint', 'sp')
-        footPrint.aimPt = numericFn.createPoint('aimPoint', 'ap')
+        drawVector.sourcePt = numericFn.createPoint('sourcePoint', 'sp')
+        drawVector.aimPt = numericFn.createPoint('aimPoint', 'ap')
 
-        om.MPxNode.addAttribute( footPrint.size )
+        om.MPxNode.addAttribute( drawVector.size )
         ######VECTOR
-        om.MPxNode.addAttribute( footPrint.drawMode )
-        om.MPxNode.addAttribute( footPrint.sourcePt )
-        om.MPxNode.addAttribute( footPrint.aimPt)
+        om.MPxNode.addAttribute( drawVector.drawMode )
+        om.MPxNode.addAttribute( drawVector.sourcePt )
+        om.MPxNode.addAttribute( drawVector.aimPt)
 
     def __init__(self):
         omui.MPxLocatorNode.__init__(self)
@@ -61,7 +61,7 @@ class footPrint(omui.MPxLocatorNode):
 ## Viewport 2.0 override implementation
 ##
 #############################################################################
-class footPrintData(om.MUserData):
+class drawVectorData(om.MUserData):
     def __init__(self):
         om.MUserData.__init__(self, False) ## don't delete after draw
 
@@ -69,17 +69,17 @@ class footPrintData(om.MUserData):
         self.fsourcePt = om.MPoint()
         self.faimPt = om.MPoint()
 
-class footPrintDrawOverride(omr.MPxDrawOverride):
+class drawVectorDrawOverride(omr.MPxDrawOverride):
     @staticmethod
     def creator(obj):
-        return footPrintDrawOverride(obj)
+        return drawVectorDrawOverride(obj)
 
     @staticmethod
     def draw(context, data):
         return
 
     def __init__(self, obj):
-        omr.MPxDrawOverride.__init__(self, obj, footPrintDrawOverride.draw)
+        omr.MPxDrawOverride.__init__(self, obj, drawVectorDrawOverride.draw)
 
         ## We want to perform custom bounding box drawing
         ## so return True so that the internal rendering code
@@ -100,8 +100,8 @@ class footPrintDrawOverride(omr.MPxDrawOverride):
     def prepareForDraw(self, objPath, cameraPath, frameContext, oldData):
         ## Retrieve data cache (create if does not exist)
         data = oldData
-        if not isinstance(data, footPrintData):
-            data = footPrintData()
+        if not isinstance(data, drawVectorData):
+            data = drawVectorData()
         
         fPoints = self.getPoints(objPath)
         data.fColor = omr.MGeometryUtilities.wireframeColor(objPath)
@@ -115,7 +115,7 @@ class footPrintDrawOverride(omr.MPxDrawOverride):
 
     def addUIDrawables(self, objPath, drawManager, frameContext, data):
         locatordata = data
-        if not isinstance(locatordata, footPrintData):
+        if not isinstance(locatordata, drawVectorData):
             return
         drawManager.beginDrawable()
         #Draw Vector
@@ -128,9 +128,9 @@ class footPrintDrawOverride(omr.MPxDrawOverride):
 
     def getPoints(self, objPath):
         ## Retrieve value of the source point attribute from the node
-        footprintNode = objPath.node()
-        sourcePlug = om.MPlug(footprintNode, footPrint.sourcePt)
-        aimPlug = om.MPlug(footprintNode, footPrint.aimPt)
+        drawVectorNode = objPath.node()
+        sourcePlug = om.MPlug(drawVectorNode, drawVector.sourcePt)
+        aimPlug = om.MPlug(drawVectorNode, drawVector.aimPt)
 
         if not sourcePlug.isNull:
             sourcePtHandle = sourcePlug.asMDataHandle()
@@ -149,13 +149,13 @@ def initializePlugin(obj):
     plugin = om.MFnPlugin(obj, "Dmitrii Shevchenko", "1.0", "Any")
 
     try:
-        plugin.registerNode("footPrint", footPrint.id, footPrint.creator, footPrint.initialize, om.MPxNode.kLocatorNode, footPrint.drawDbClassification)
+        plugin.registerNode("drawVector", drawVector.id, drawVector.creator, drawVector.initialize, om.MPxNode.kLocatorNode, drawVector.drawDbClassification)
     except:
         sys.stderr.write("Failed to register node\n")
         raise
 
     try:
-        omr.MDrawRegistry.registerDrawOverrideCreator(footPrint.drawDbClassification, footPrint.drawRegistrantId, footPrintDrawOverride.creator)
+        omr.MDrawRegistry.registerDrawOverrideCreator(drawVector.drawDbClassification, drawVector.drawRegistrantId, drawVectorDrawOverride.creator)
     except:
         sys.stderr.write("Failed to register override\n")
         raise
@@ -164,13 +164,13 @@ def uninitializePlugin(obj):
     plugin = om.MFnPlugin(obj)
 
     try:
-        plugin.deregisterNode(footPrint.id)
+        plugin.deregisterNode(drawVector.id)
     except:
         sys.stderr.write("Failed to deregister node\n")
         pass
 
     try:
-        omr.MDrawRegistry.deregisterDrawOverrideCreator(footPrint.drawDbClassification, footPrint.drawRegistrantId)
+        omr.MDrawRegistry.deregisterDrawOverrideCreator(drawVector.drawDbClassification, drawVector.drawRegistrantId)
     except:
         sys.stderr.write("Failed to deregister override\n")
         pass
