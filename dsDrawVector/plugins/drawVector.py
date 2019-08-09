@@ -102,11 +102,7 @@ class footPrintDrawOverride(omr.MPxDrawOverride):
         data = oldData
         if not isinstance(data, footPrintData):
             data = footPrintData()
-
-        ## compute data and cache it
-        global soleCount, sole
-        global heelCount, heel
-
+        
         fPoints = self.getPoints(objPath)
         data.fColor = omr.MGeometryUtilities.wireframeColor(objPath)
         data.fsourcePt = fPoints[0]

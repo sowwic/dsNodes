@@ -289,7 +289,7 @@ def initializePlugin(obj):
    except RuntimeError:
        sys.stderr.write("Failed to register node: %s" % NODENAME)
 
-aeTemplate = open(r'C:\Users\dmitris\Documents\maya\scripts\dsNodes\dsRaycast\AEtemplate.mel', "r").read()
+aeTemplate = open(r'C:\Users\dmitris\Documents\maya\scripts\dsNodes\dsRaycast\plugins\AEtemplate.mel', "r").read()
 mel.eval(aeTemplate)
 mel.eval("refreshEditorTemplates; refreshAE;")
 
