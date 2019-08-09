@@ -1,12 +1,14 @@
-import maya.cmds as mc
-from rigging.functions import *
+from maya import cmds as mc, mel
+import os
+
+MAYA_APP_DIR = mel.eval('getenv ("MAYA_APP_DIR")')
 
 
 mc.file(new=1,f=1)
-mc.unloadPlugin('drawVector')
-mc.loadPlugin('C:\Users\dmitris\Documents\maya\scripts\dsNodes\dsDrawVector\plugins\drawVector.py')
 mc.unloadPlugin("dsRaycast")
-mc.loadPlugin('C:\Users\dmitris\Documents\maya\scripts\dsNodes\dsRaycast\plugins\dsRaycast.py')
+mc.unloadPlugin('drawVector')
+mc.loadPlugin(os.path.join(MAYA_APP_DIR, 'scripts\dsNodes\dsDrawVector\plugins\drawVector.py'))
+mc.loadPlugin(os.path.join(MAYA_APP_DIR, 'scripts\dsNodes\dsRaycast\plugins\dsRaycast.py'))
 
 ###### Test #########
 #Basic test
@@ -14,16 +16,15 @@ mc.loadPlugin('C:\Users\dmitris\Documents\maya\scripts\dsNodes\dsRaycast\plugins
 mesh = mc.polyPlane()[0]
 mc.move(0, 4, 0, mesh)
 mc.scale(50, 50, 50, mesh)
-source = create.locator(name='sourse')
-source.translate = [0, 10, 0]
-aim = create.locator(name='aim')
-aim.translate = [0, 1, 0]
+source = mc.spaceLocator(n='source')[0]
+mc.move(0,10,0, source)
+aim = mc.spaceLocator(n='aim')[0] 
 
 dsRaycast = mc.createNode('dsRaycast')
 
 mc.connectAttr(mesh + '.worldMesh', dsRaycast + '.tm')
-source.worldMatrix > dsRaycast + '.srs'
-aim.translate > dsRaycast + '.aim'
+mc.connectAttr(source + '.worldMatrix', dsRaycast + '.srs')
+mc.connectAttr(aim + '.t', dsRaycast + '.aim')
 
 testObj = mc.polyCube(n='testBoi00')
 

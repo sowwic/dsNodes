@@ -1,6 +1,7 @@
 from maya import cmds as mc, OpenMaya as om, OpenMayaMPx as ompx, mel
 import getpass, os, sys
 
+MAYA_APP_DIR = mel.eval('getenv ("MAYA_APP_DIR")')
 NAME = "dsRaycast"
 VERSION = "1.0"
 MAYAVERSION = "2018"
@@ -358,7 +359,7 @@ def initializePlugin(obj):
    except RuntimeError:
        sys.stderr.write("Failed to register node: %s" % NODENAME)
 
-aeTemplate = open(r'C:\Users\dmitris\Documents\maya\scripts\dsNodes\dsRaycast\plugins\AEtemplate.mel', "r").read()
+aeTemplate = open(os.path.join(MAYA_APP_DIR, 'scripts\dsNodes\dsRaycast\plugins\AEtemplate.mel'), "r").read()
 mel.eval(aeTemplate)
 mel.eval("refreshEditorTemplates; refreshAE;")
 
