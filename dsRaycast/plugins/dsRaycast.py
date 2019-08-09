@@ -21,16 +21,68 @@ class DsRaycast(ompx.MPxNode):
     inOfsVectorEnum = om.MObject()
     outHitPoint = om.MObject()
     outNormal = om.MObject()
+    inDebug = om.MObject()
     outRotationX = om.MObject()
     outRotationY = om.MObject()
     outRotationZ = om.MObject()
     outRotation = om.MObject()
     outHitDistance = om.MObject()
+    outSourcePt = om.MObject()
+
     
 
     def __init__(self):
         ompx.MPxNode.__init__(self)
 
+    @staticmethod
+    def rayCallback(*args):
+        callbackType, callbackPlug, _, thisNode = args
+        dependNode = om.MFnDependencyNode(thisNode.thisMObject())
+        debugPlug = dependNode.findPlug("debugRay", False)
+
+        if callbackPlug != debugPlug:
+            return
+
+        if debugPlug.asBool():
+            dgMod = om.MDagModifier()
+            drawVector = dgMod.createNode("drawVector")
+            dgMod.doIt()
+
+            sourcePlug = dependNode.findPlug("sourcePoint", False)
+            aimPlug = dependNode.findPlug("hitPoint", False)
+            messagePlug = dependNode.findPlug('message', False)
+
+            drawVectorTrnDag = om.MFnDagNode(drawVector)
+            drawVectorTrnDag.setLocked(True)
+            drawVectorDepend = om.MFnDependencyNode(drawVectorTrnDag.child(0))
+            sourceDestPlug = drawVectorDepend.findPlug("sourcePoint", False)
+            aimDestPlug = drawVectorDepend.findPlug("aimPoint", False)
+            messageDestPlug = drawVectorDepend.findPlug("drawMessage", False)
+
+            dgMod = om.MDGModifier()
+            dgMod.connect(sourcePlug, sourceDestPlug)
+            dgMod.connect(aimPlug, aimDestPlug)
+            dgMod.connect(messagePlug, messageDestPlug)
+            dgMod.doIt()
+
+        else:
+            #Delete draw vector node connected through message
+            sourcePlug = dependNode.findPlug("message", False)
+            plugArray = om.MPlugArray()
+            sourcePlug.connectedTo(plugArray, False, True)
+            drawVectorTrn =  om.MFnDagNode(plugArray[0].node()).parent(0)
+            drawVectorTrnDag = om.MFnDagNode(drawVectorTrn)
+            drawVectorTrnDag.setLocked(0)
+
+            dgMod = om.MDagModifier()
+            dgMod.deleteNode(drawVectorTrn)
+            dgMod.doIt()
+            
+
+
+    def postConstructor(self):
+        node = self.thisMObject()
+        om.MNodeMessage.addAttributeChangedCallback(node, self.rayCallback, self)
 
     def compute(self, pPlug, pDataBlock):
         plugsToEval = [DsRaycast.outHitPoint, DsRaycast.outNormal, DsRaycast.outRotation, DsRaycast.outHitDistance]
@@ -48,15 +100,18 @@ class DsRaycast(ompx.MPxNode):
             inBothWaysHandle = pDataBlock.inputValue(DsRaycast.inBothWays)
             inOffsetHandle = pDataBlock.inputValue(DsRaycast.inOffset)
             inOfsVectorEnumHandle = pDataBlock.inputValue(DsRaycast.inOfsVectorEnum)
+            inDebugHandle = pDataBlock.inputValue(DsRaycast.inDebug)
             outHitHandle = pDataBlock.outputValue(DsRaycast.outHitPoint)
             outNormalHandle = pDataBlock.outputValue(DsRaycast.outNormal)
             outRotationXHandle = pDataBlock.outputValue(DsRaycast.outRotationX)
             outRotationYHandle = pDataBlock.outputValue(DsRaycast.outRotationY)
             outRotationZHandle = pDataBlock.outputValue(DsRaycast.outRotationZ)
             outHitDistanceHandle = pDataBlock.outputValue(DsRaycast.outHitDistance)
+            outSourcePtHandle = pDataBlock.outputValue(DsRaycast.outSourcePt)
             
 
             #Get data off handles
+            inDebug = inDebugHandle.asBool()
             fnMesh = om.MFnMesh(inMeshHandle.data())
             inAim = om.MFloatVector(inAimHandle.asFloatVector())
             inUpVector = om.MVector(inUpVectorHandle.asVector())
@@ -155,6 +210,7 @@ class DsRaycast(ompx.MPxNode):
             outRotationYHandle.setMAngle(eulerRotY)
             outRotationZHandle.setMAngle(eulerRotZ)
             outHitDistanceHandle.setFloat(hitRayParam)
+            outSourcePtHandle.setMFloatVector(om.MFloatVector(sourcePoint))
 
             outHitHandle.setClean()
             outNormalHandle.setClean()
@@ -162,6 +218,7 @@ class DsRaycast(ompx.MPxNode):
             outRotationYHandle.setClean()
             outRotationZHandle.setClean()
             outHitDistanceHandle.setClean()
+            outSourcePtHandle.setClean()
 
         else:
             return om.kUnknownParameter
@@ -178,6 +235,10 @@ def nodeInitializer():
     matrixAttrFn = om.MFnMatrixAttribute()
     
     ##IN
+    #Debug
+    DsRaycast.inDebug = numericAttributeFn.create('debugRay', 'dbug', om.MFnNumericData.kBoolean, 0)
+    DsRaycast.addAttribute(DsRaycast.inDebug)
+
     #Mesh
     DsRaycast.inMesh = typedAttributeFn.create('targetMesh','tm', om.MFnData.kMesh)
     DsRaycast.addAttribute(DsRaycast.inMesh)
@@ -249,6 +310,11 @@ def nodeInitializer():
     numericAttributeFn.setWritable(0)
     DsRaycast.addAttribute(DsRaycast.outHitDistance)
 
+    #SourcePt
+    DsRaycast.outSourcePt = numericAttributeFn.createPoint('sourcePoint', 'sp')
+    numericAttributeFn.setWritable(0)
+    DsRaycast.addAttribute(DsRaycast.outSourcePt)
+
 
     #Affects
     DsRaycast.attributeAffects(DsRaycast.inMesh, DsRaycast.outHitPoint)
@@ -280,6 +346,9 @@ def nodeInitializer():
     DsRaycast.attributeAffects(DsRaycast.inUpVector, DsRaycast.outHitDistance)
     DsRaycast.attributeAffects(DsRaycast.inMode, DsRaycast.outHitDistance)
     DsRaycast.attributeAffects(DsRaycast.inAimAxis, DsRaycast.outHitDistance)
+
+    DsRaycast.attributeAffects(DsRaycast.inSourceMatrix, DsRaycast.outSourcePt)
+    DsRaycast.attributeAffects(DsRaycast.inOffset, DsRaycast.outSourcePt)
 
 
 def initializePlugin(obj):

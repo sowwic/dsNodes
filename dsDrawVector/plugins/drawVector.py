@@ -17,12 +17,14 @@ class drawVector(omui.MPxLocatorNode):
     drawDbClassification = "drawdb/geometry/vector"
     drawRegistrantId = "drawVectorPlugin"
 
-    size = None## The size of the foot
     sourcePt = om.MObject()
     aimPt = om.MObject()
     vector = om.MObject()
     distance = om.MObject()
-    drawMode = om.MObject()
+    lineColor = om.MObject()
+    lineWidth = om.MObject()
+    drawMessage = om.MObject()
+
 
     @staticmethod
     def creator():
@@ -33,29 +35,32 @@ class drawVector(omui.MPxLocatorNode):
         unitFn = om.MFnUnitAttribute()
         numericFn = om.MFnNumericAttribute()
         enumFn = om.MFnEnumAttribute()
-
-        drawVector.size = unitFn.create( "size", "sz", om.MFnUnitAttribute.kDistance )
-        unitFn.default = om.MDistance(1.0)
+        messageFn = om.MFnMessageAttribute()
         
         ######VECTOR
-        drawVector.drawMode = enumFn.create('drawingMode', 'drm', 0)
-        enumFn.addField('Between two', 0)
-        enumFn.addField('From single', 1)
         drawVector.sourcePt = numericFn.createPoint('sourcePoint', 'sp')
         drawVector.aimPt = numericFn.createPoint('aimPoint', 'ap')
+        drawVector.drawMessage = messageFn.create('drawMessage', 'drawMessage')
+        drawVector.lineColor = numericFn.createColor('color', 'color')
+        drawVector.lineWidth = numericFn.create('width', 'width', om.MFnNumericData.kFloat, 2.0)
 
-        om.MPxNode.addAttribute( drawVector.size )
         ######VECTOR
-        om.MPxNode.addAttribute( drawVector.drawMode )
         om.MPxNode.addAttribute( drawVector.sourcePt )
-        om.MPxNode.addAttribute( drawVector.aimPt)
+        om.MPxNode.addAttribute( drawVector.aimPt )
+        om.MPxNode.addAttribute( drawVector.drawMessage )
+        om.MPxNode.addAttribute( drawVector.lineColor )
+        om.MPxNode.addAttribute( drawVector.lineWidth )
 
     def __init__(self):
         omui.MPxLocatorNode.__init__(self)
 
     def compute(self, plug, data):
         return None
+    
+    def postConstructor(self, *args):
+        dependNode = om.MFnDependencyNode(self.thisMObject())
 
+        
 #############################################################################
 ##
 ## Viewport 2.0 override implementation
@@ -66,8 +71,10 @@ class drawVectorData(om.MUserData):
         om.MUserData.__init__(self, False) ## don't delete after draw
 
         ######VECTOR
+        self.fColor = om.MColor()
         self.fsourcePt = om.MPoint()
         self.faimPt = om.MPoint()
+        self.fWidth = 1.0
 
 class drawVectorDrawOverride(omr.MPxDrawOverride):
     @staticmethod
@@ -104,9 +111,13 @@ class drawVectorDrawOverride(omr.MPxDrawOverride):
             data = drawVectorData()
         
         fPoints = self.getPoints(objPath)
-        data.fColor = omr.MGeometryUtilities.wireframeColor(objPath)
+        fColor = self.getColor(objPath)
+        fWidth = self.getWidth(objPath)
+
+        data.fColor = om.MColor(fColor)
         data.fsourcePt = fPoints[0]
         data.faimPt = fPoints[1]
+        data.fWidth = fWidth
 
         return data
 
@@ -117,11 +128,21 @@ class drawVectorDrawOverride(omr.MPxDrawOverride):
         locatordata = data
         if not isinstance(locatordata, drawVectorData):
             return
-        drawManager.beginDrawable()
+
+        drawManager.beginDrawable(selectability = omr.MUIDrawManager.kNonSelectable)
         #Draw Vector
+        arrowLen = 1.09
         drawManager.setColor( locatordata.fColor )
         drawManager.setDepthPriority(5)
+        drawManager.setLineWidth(locatordata.fWidth)
         drawManager.line(locatordata.fsourcePt, locatordata.faimPt)
+
+        offsetpt = om.MPoint((locatordata.faimPt.x + locatordata.fsourcePt.x)/arrowLen, (locatordata.faimPt.y + locatordata.fsourcePt.y)/arrowLen, (locatordata.faimPt.z + locatordata.fsourcePt.z)/arrowLen)
+
+        tipDown = om.MPoint(offsetpt.x, offsetpt.y-0.5, offsetpt.z)
+        tipUp = om.MPoint(offsetpt.x, offsetpt.y+0.5, offsetpt.z )
+        drawManager.line(locatordata.faimPt, tipUp)
+        drawManager.line(locatordata.faimPt, tipDown)
 
         drawManager.endDrawable()
 
@@ -143,6 +164,26 @@ class drawVectorDrawOverride(omr.MPxDrawOverride):
             
             return sourcePt
         
+        return 1.0
+
+    def getColor(self, objPath):
+        drawVectorNode = objPath.node()
+        colorPlug = om.MPlug(drawVectorNode, drawVector.lineColor)
+
+        if not colorPlug.isNull:
+            colorFloat3 = colorPlug.asMDataHandle().asFloat3()
+            return colorFloat3
+
+        return 1.0
+
+    def getWidth(self, objPath):
+        drawVectorNode = objPath.node()
+        widthPlug = om.MPlug(drawVectorNode, drawVector.lineWidth)
+
+        if not widthPlug.isNull:
+            width = widthPlug.asFloat()
+            return width
+
         return 1.0
 
 def initializePlugin(obj):

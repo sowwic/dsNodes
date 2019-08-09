@@ -3,8 +3,9 @@ from rigging.functions import *
 
 
 mc.file(new=1,f=1)
+mc.unloadPlugin('drawVector')
+mc.loadPlugin('C:\Users\dmitris\Documents\maya\scripts\dsNodes\dsDrawVector\plugins\drawVector.py')
 mc.unloadPlugin("dsRaycast")
-
 mc.loadPlugin('C:\Users\dmitris\Documents\maya\scripts\dsNodes\dsRaycast\plugins\dsRaycast.py')
 
 ###### Test #########
@@ -27,6 +28,7 @@ aim.translate > dsRaycast + '.aim'
 testObj = mc.polyCube(n='testBoi00')
 
 mc.connectAttr(dsRaycast + ".hitPoint", testObj[0] + ".t")
+
 
 '''
 #Wheel test
