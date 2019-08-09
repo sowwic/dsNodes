@@ -136,14 +136,6 @@ class drawVectorDrawOverride(omr.MPxDrawOverride):
         drawManager.setDepthPriority(5)
         drawManager.setLineWidth(locatordata.fWidth)
         drawManager.line(locatordata.fsourcePt, locatordata.faimPt)
-
-        offsetpt = om.MPoint((locatordata.faimPt.x + locatordata.fsourcePt.x)/arrowLen, (locatordata.faimPt.y + locatordata.fsourcePt.y)/arrowLen, (locatordata.faimPt.z + locatordata.fsourcePt.z)/arrowLen)
-
-        tipDown = om.MPoint(offsetpt.x, offsetpt.y-0.5, offsetpt.z)
-        tipUp = om.MPoint(offsetpt.x, offsetpt.y+0.5, offsetpt.z )
-        drawManager.line(locatordata.faimPt, tipUp)
-        drawManager.line(locatordata.faimPt, tipDown)
-
         drawManager.endDrawable()
 
 
