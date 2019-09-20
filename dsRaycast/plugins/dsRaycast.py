@@ -331,7 +331,6 @@ def nodeInitializer():
     DsRaycast.attributeAffects(DsRaycast.inAimAxis, DsRaycast.outNormal)
     DsRaycast.attributeAffects(DsRaycast.inAim, DsRaycast.outNormal)
     DsRaycast.attributeAffects(DsRaycast.inMode, DsRaycast.outNormal)
-    DsRaycast.attributeAffects(DsRaycast.inAimAxis, DsRaycast.outNormal)
 
     DsRaycast.attributeAffects(DsRaycast.inMesh, DsRaycast.outRotation)
     DsRaycast.attributeAffects(DsRaycast.inSourceMatrix, DsRaycast.outRotation)

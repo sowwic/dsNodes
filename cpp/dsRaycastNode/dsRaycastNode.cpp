@@ -4,7 +4,11 @@
 #include <maya/MDataBlock.h>
 #include <maya/MFloatPoint.h>
 #include <maya/MFloatVector.h>
+#include <maya/MMatrix.h>
+#include <maya/MTransformationMatrix.h>
+#include <maya/MEulerRotation.h>
 #include <maya/MVector.h>
+#include <maya/MAngle.h>
 #include <maya/MPoint.h>
 #include <maya/MFnPlugin.h>
 #include <maya/MTypeId.h>
@@ -13,6 +17,9 @@
 #include <maya/MDataHandle.h>
 #include <maya/MFnNumericAttribute.h>
 #include <maya/MFnTypedAttribute.h>
+#include <maya/MFnUnitAttribute.h>
+#include <maya/MFnEnumAttribute.h>
+#include <maya/MFnMatrixAttribute.h>
 #include <maya/MUserData.h>
 #include <maya/MIOStream.h>
 #include <maya/MDagPath.h>
@@ -29,24 +36,53 @@ public:
 	static MStatus initialize();
 
 public:
+	//INPUTS
 	static MTypeId id;
 	static MObject inMesh;
-	static MObject inSource;
+	static MObject inMode;
+	static MObject inSourceMatrix;
 	static MObject inAim;
+	static MObject inAimAxis;
+	static MObject inUpVector;
 	static MObject inDistance;
 	static MObject inBothWays;
+	static MObject inOffset;
+	static MObject inOfsVectorEnum;
+	static MObject inDebug;
+	
+
+	//OUTPUTS
 	static MObject outHitPoint;
 	static MObject outNormal;
+	static MObject outRotationX;
+	static MObject outRotationY;
+	static MObject outRotationZ;
+	static MObject outRotation;
+	static MObject outHitDistance;
+	static MObject outSourcePt;
 };
 
 MTypeId Raycast::id(0x09833);
 MObject Raycast::inMesh;
-MObject Raycast::inSource;
+MObject Raycast::inMode;
+MObject Raycast::inSourceMatrix;
 MObject Raycast::inAim;
+MObject Raycast::inAimAxis;
+MObject Raycast::inUpVector;
 MObject Raycast::inDistance;
 MObject Raycast::inBothWays;
+MObject Raycast::inOffset;
+MObject Raycast::inOfsVectorEnum;
+MObject Raycast::inDebug;
+
 MObject Raycast::outHitPoint;
 MObject Raycast::outNormal;
+MObject Raycast::outRotationX;
+MObject Raycast::outRotationY;
+MObject Raycast::outRotationZ;
+MObject Raycast::outRotation;
+MObject Raycast::outHitDistance;
+MObject Raycast::outSourcePt;
 
 Raycast::Raycast() {}
 Raycast::~Raycast() {}
@@ -57,48 +93,108 @@ MStatus Raycast::compute(const MPlug &plug, MDataBlock &data)
 	MStatus returnStatus;
 
 	if (plug == outHitPoint | plug == outNormal)
-	{
+	{	
+		//INPUT HANDLES
 		MDataHandle inMeshHandle = data.inputValue(inMesh, &returnStatus);
 		CHECK_MSTATUS(returnStatus);
-		MDataHandle inSourceHandle = data.inputValue(inSource, &returnStatus);
+		MDataHandle inModeHandle = data.inputValue(inMode, &returnStatus);
+		CHECK_MSTATUS(returnStatus);
+		MDataHandle inSourceMatrixHandle = data.inputValue(inSourceMatrix, &returnStatus);
 		CHECK_MSTATUS(returnStatus);
 		MDataHandle inAimHandle = data.inputValue(inAim, &returnStatus);
+		CHECK_MSTATUS(returnStatus);
+		MDataHandle inAimAxisHandle = data.inputValue(inAimAxis, &returnStatus);
+		CHECK_MSTATUS(returnStatus);
+		MDataHandle inUpVectorHandle = data.inputValue(inUpVector, &returnStatus);
 		CHECK_MSTATUS(returnStatus);
 		MDataHandle inDistanceHandle = data.inputValue(inDistance, &returnStatus);
 		CHECK_MSTATUS(returnStatus);
 		MDataHandle inBotheWaysHandle = data.inputValue(inBothWays, &returnStatus);
 		CHECK_MSTATUS(returnStatus);
+		MDataHandle inOffsetHandle = data.inputValue(inOffset, &returnStatus);
+		CHECK_MSTATUS(returnStatus);
+		MDataHandle inOfsVectorEnumHandle = data.inputValue(inOfsVectorEnum, &returnStatus);
+		CHECK_MSTATUS(returnStatus);
+		MDataHandle inDebugHandle = data.inputValue(inDebug, &returnStatus);
+		CHECK_MSTATUS(returnStatus);
+		
+		//OUTPUT HANDLES
 		MDataHandle outHitHandle = data.outputValue(outHitPoint, &returnStatus);
 		CHECK_MSTATUS(returnStatus);
 		MDataHandle outNormalHandle = data.outputValue(outNormal, &returnStatus);
 		CHECK_MSTATUS(returnStatus);
+		MDataHandle outRotationXHandle = data.outputValue(outRotationX, &returnStatus);
+		CHECK_MSTATUS(returnStatus);
+		MDataHandle outRotationYHandle = data.outputValue(outRotationY, &returnStatus);
+		CHECK_MSTATUS(returnStatus);
+		MDataHandle outRotationZHandle = data.outputValue(outRotationZ, &returnStatus);
+		CHECK_MSTATUS(returnStatus);
+		MDataHandle outHitDistanceHandle = data.outputValue(outHitDistance, &returnStatus);
+		CHECK_MSTATUS(returnStatus);
+		MDataHandle outSourcePtHandle = data.outputValue(outSourcePt, &returnStatus);
+		CHECK_MSTATUS(returnStatus);
 
-		//POINT
-		//MDagPath pathTomesh;
-		
-		//MDagPath::getAPathTo(inMeshHandle.data(), pathTomesh);
+
+		//GET DATA OFF HANDLES
+		bool inDebug = inDebugHandle.asBool();
 		MFnMesh fnMesh(inMeshHandle.data());
-		
+		MFloatVector inAim = inAimHandle.asFloatVector();
+		MVector inUpVector = inUpVectorHandle.asVector();
+		float inDistance = inDistanceHandle.asFloat();
+		bool inBothWays = inBotheWaysHandle.asBool();
+		short inMode = inModeHandle.asShort();
+		float inOffset = inOffsetHandle.asFloat();
+		bool inOfsVectorEnum = inOfsVectorEnumHandle.asBool();
+		MFloatPoint hitpoint = MFloatPoint();
+		MMatrix inSourceMatrix = inSourceMatrixHandle.asMatrix();
+		short inAimAxis = inAimAxisHandle.asShort();
+
+		//GET AXIS VECTORS FROM SOURCE MATRIX
+		double sourceAxisX[] = { inSourceMatrix(0, 0), inSourceMatrix(0,1), inSourceMatrix(0,2) };
+		double sourceAxisY[] = { inSourceMatrix(1, 0), inSourceMatrix(1,1), inSourceMatrix(1,2) };
+		double sourceAxisZ[] = { inSourceMatrix(2, 0), inSourceMatrix(2,1), inSourceMatrix(2,2) };
+
+		//GET SOURCE POINT FROM MATRIX
+		double sourceTranslate[] = { inSourceMatrix(3, 0), inSourceMatrix(3,1), inSourceMatrix(3,2) };
+		MFloatPoint sourcePoint = MFloatPoint(sourceTranslate[0], sourceTranslate[1], sourceTranslate[2]);
+
+		//GET AIM VECTOR
+		MFloatVector aimVector;
+		if (inMode == 0)
+		{
+			aimVector = MFloatVector(inAim.x - sourceTranslate[0], inAim.y - sourceTranslate[1], inAim.z - sourceTranslate[2]); //Relative vector
+		}
+		else if (inMode == 1)
+		{
+			if (inAimAxis == 0)
+			{
+				aimVector = MFloatVector(sourceAxisX[0], sourceAxisX[1], sourceAxisX[2]);
+			}
+			else if (inAimAxis == 1)
+			{
+				aimVector = MFloatVector(sourceAxisY[0], sourceAxisY[1], sourceAxisY[2]);
+			}
+			else if (inAimAxis == 2)
+			{
+				aimVector = MFloatVector(sourceAxisZ[0], sourceAxisZ[1], sourceAxisZ[2]);
+			}
+		}
+
+		//GET HIT POINT
 		float fHitRayParams;
 		int iaHitFaces;
 		int iaHitTriangles;
 
-
-		MFloatPoint inSource = MFloatPoint(inSourceHandle.asFloatVector());			MFloatVector inAim = MFloatVector(inAimHandle.asFloatVector());
-		float distance = inDistanceHandle.asFloat();
-		bool inBothWays = inBotheWaysHandle.asBool();
-		MFloatPoint hitPoint = MFloatPoint();
-
-		bool intersectStatus = fnMesh.closestIntersection(  inSource,
-															inAim,
+		bool intersectStatus = fnMesh.closestIntersection(  sourcePoint,
+															aimVector,
 															NULL,
 															NULL,
 															false,
 															MSpace::kWorld,
-															distance,
+															inDistance,
 															inBothWays,
 															NULL,
-															hitPoint,
+															hitpoint,
 															&fHitRayParams,
 															&iaHitFaces,
 															&iaHitTriangles,
@@ -109,17 +205,58 @@ MStatus Raycast::compute(const MPlug &plug, MDataBlock &data)
 			
 		//NORMAL
 		MVector normalVector = MVector();
-		MPoint mHitPoint = MPoint(hitPoint);
+		MPoint mHitPoint = MPoint(hitpoint);
 
 		fnMesh.getClosestNormal(mHitPoint, normalVector, MSpace::kWorld);
 
+		//APPLY OFFSET
+		MFloatPoint offsetPoint;
+		if (inOfsVectorEnum)
+		{
+			MFloatVector fNormalVector = MFloatVector(normalVector);
+			offsetPoint = MFloatPoint(inOffset * fNormalVector.x, inOffset * fNormalVector.y, inOffset * fNormalVector.z);
+		}
+		else
+		{
+			offsetPoint = MFloatPoint(inOffset * aimVector.x, inOffset * aimVector.y, inOffset * aimVector.z);
+		}
+		hitpoint.x += offsetPoint.x;
+		hitpoint.y += offsetPoint.y;
+		hitpoint.z += offsetPoint.z;
 
-		//OUTPUTS
-		outHitHandle.setMFloatVector(MFloatVector(hitPoint));
+		//CREATING ROTATION
+		
+		MVector crossVector = normalVector ^ inUpVector;
+		inUpVector = normalVector ^ crossVector;
+		double vectorArray[4][4] = {{normalVector.x, normalVector.y, normalVector.z, 0.0},
+									{inUpVector.x, inUpVector.y, inUpVector.z, 0.0},
+									{crossVector.x, crossVector.y, crossVector.z, 0.0},
+									{0.0, 0.0, 0.0, 0.0}
+									};
+		MMatrix baseMatrix = MMatrix(vectorArray);
+		MTransformationMatrix transformMatrix = MTransformationMatrix(baseMatrix);
+		MEulerRotation eulerRot = transformMatrix.eulerRotation();
+		MAngle eulerRotX = MAngle(eulerRot.x);
+		MAngle eulerRotY = MAngle(eulerRot.y);
+		MAngle eulerRotZ = MAngle(eulerRot.z);
+
+
+		//SET OUTPUT HANDLES
+		outHitHandle.setMFloatVector(MFloatVector(hitpoint));
 		outNormalHandle.setMFloatVector(MFloatVector(normalVector));
+		outRotationXHandle.setMAngle(eulerRotX);
+		outRotationYHandle.setMAngle(eulerRotY);
+		outRotationZHandle.setMAngle(eulerRotZ);
+		outHitDistanceHandle.setFloat(fHitRayParams);
+		outSourcePtHandle.setMFloatVector(MFloatVector(sourcePoint));
 
 		outHitHandle.setClean();
 		outNormalHandle.setClean();
+		outRotationXHandle.setClean();
+		outRotationYHandle.setClean();
+		outRotationZHandle.setClean();
+		outHitDistanceHandle.setClean();
+		outSourcePtHandle.setClean();
 
 	}else{
 		return MS::kUnknownParameter;
@@ -135,77 +272,189 @@ void* Raycast::creator()
 
 MStatus Raycast::initialize()
 {
-	MFnNumericAttribute nAttr;
-	MFnTypedAttribute tAttr;
+	
+	MFnTypedAttribute typedAttributeFn;
+	MFnNumericAttribute numericAttributeFn;
+	MFnUnitAttribute unitAttributeFn;
+	MFnEnumAttribute enumAttributeFn;
+	MFnMatrixAttribute matrixAttributeFn;
 	MStatus stat;
 
 	//INPUT
-	//Mesh
-	inMesh = tAttr.create("targetMesh", "tm", MFnData::kMesh);
-	tAttr.setReadable(false);
+	//Debug
+	inDebug = numericAttributeFn.create("debugRay", "debugRay", MFnNumericData::kBoolean, 0);
 
-	//Source
-	inSource = nAttr.createPoint("source", "src");
+	//Mesh
+	inMesh = typedAttributeFn.create("targetMesh", "tm", MFnData::kMesh);
+	typedAttributeFn.setReadable(false);
+
+	//Mode
+	inMode = enumAttributeFn.create("mode", "mode", 0);
+	enumAttributeFn.addField("Between two", 0);
+	enumAttributeFn.addField("From single", 1);
+
+	//Aim axis
+	inAimAxis = enumAttributeFn.create("aimAxis", "aimAxis", 0);
+	enumAttributeFn.addField("X", 0);
+	enumAttributeFn.addField("Y", 1);
+	enumAttributeFn.addField("Z", 2);
+
+	//Source matrix
+	inSourceMatrix = matrixAttributeFn.create("sourceMatrix", "sourceMatrix");
 	
 	//Aim
-	inAim = nAttr.createPoint("aim", "a");
+	inAim = numericAttributeFn.createPoint("aim", "aim");
+
+	//Up vector
+	inUpVector = numericAttributeFn.createPoint("upVector", "upVector");
 
 	//Distance
-	inDistance = nAttr.create("distance", "d", MFnNumericData::kFloat, 100.0);
+	inDistance = numericAttributeFn.create("castDistance", "castDistance", MFnNumericData::kFloat, 100.0);
 
 	//Test direction
-	inBothWays = nAttr.create("bothWays", "bw", MFnNumericData::kBoolean, 1.0);
+	inBothWays = numericAttributeFn.create("bothWays", "bw", MFnNumericData::kBoolean, 1.0);
+
+	//Offset
+	inOffset = numericAttributeFn.create("offset", "offs", MFnNumericData::kFloat, 0.0);
+
+	//Offset vector enum
+	inOfsVectorEnum = enumAttributeFn.create("offsetVector", "offsetVector", 0);
+	enumAttributeFn.addField("Aim", 0);
+	enumAttributeFn.addField("Normal", 1);
 
 
 	//OUTPUT
 	//Hit Point
-	outHitPoint = nAttr.createPoint("hitPoint", "hit");
-	nAttr.setWritable(false);
+	outHitPoint = numericAttributeFn.createPoint("hitPoint", "hit");
+	numericAttributeFn.setWritable(false);
 	
 	//Normal vector
-	outNormal = nAttr.createPoint("normal", "n");
-	nAttr.setWritable(false);
+	outNormal = numericAttributeFn.createPoint("normal", "n");
+	numericAttributeFn.setWritable(false);
+
+	//Rotation
+	outRotationX = unitAttributeFn.create("rotateX", "rx", MFnUnitAttribute::kAngle);
+	outRotationY = unitAttributeFn.create("rotateY", "ry", MFnUnitAttribute::kAngle);
+	outRotationZ = unitAttributeFn.create("rotateZ", "rz", MFnUnitAttribute::kAngle);
+	outRotation = numericAttributeFn.create("rotate", "r", outRotationX, outRotationY, outRotationZ);
+
+	//Hit distance
+	outHitDistance = numericAttributeFn.create("hitDistance", "hitDistance", MFnNumericData::kFloat);
+	numericAttributeFn.setWritable(false);
+
+	//Source point
+	outSourcePt = numericAttributeFn.createPoint("sourcePoint", "sourcePoint");
+	numericAttributeFn.setWritable(false);
 
 
-	//ADDING ATTRIBUTES
+
+	//ADD ATTRIBUTES
+	//Input
+	stat = addAttribute(inDebug);
+		if (!stat) { stat.perror("addAttribute"); return stat;}
 	stat = addAttribute(inMesh);
 		if (!stat) { stat.perror("addAttribute"); return stat;}
-	stat = addAttribute(inSource);
+	stat = addAttribute(inMode);
+		if (!stat) { stat.perror("addAttribute"); return stat;}
+	stat = addAttribute(inAimAxis);
+		if (!stat) { stat.perror("addAttribute"); return stat;}
+	stat = addAttribute(inSourceMatrix);
 		if (!stat) { stat.perror("addAttribute"); return stat;}
 	stat = addAttribute(inAim);
+		if (!stat) { stat.perror("addAttribute"); return stat;}
+	stat = addAttribute(inUpVector);
 		if (!stat) { stat.perror("addAttribute"); return stat;}
 	stat = addAttribute(inDistance);
 		if (!stat) { stat.perror("addAttribute"); return stat;}
 	stat = addAttribute(inBothWays);
 		if (!stat) { stat.perror("addAttribute"); return stat;}
+	stat = addAttribute(inOffset);
+		if (!stat) { stat.perror("addAttribute"); return stat;}
+	stat = addAttribute(inOfsVectorEnum);
+		if (!stat) { stat.perror("addAttribute"); return stat;}
+
+	//Output
 	stat = addAttribute(outHitPoint);
-		if (!stat) { stat.perror("addAttribute"); return stat; }
+		if (!stat) { stat.perror("addAttribute"); return stat;}
 	stat = addAttribute(outNormal);
-		if (!stat) { stat.perror("addAttribute"); return stat; }
+		if (!stat) { stat.perror("addAttribute"); return stat;}
+	stat = addAttribute(outRotation);
+		if (!stat) { stat.perror("addAttribute"); return stat;}
+	stat = addAttribute(outHitDistance);
+		if (!stat) { stat.perror("addAttribute"); return stat;}
+	stat = addAttribute(outSourcePt);
+		if (!stat) { stat.perror("addAttribute"); return stat;}
 
 
 	//ATTRIBUTE AFFECTS
 	stat = attributeAffects(inMesh, outHitPoint);
-		if (!stat) { stat.perror("attributeAffects"); return stat; }
-	stat = attributeAffects(inSource, outHitPoint);
-		if (!stat) { stat.perror("attributeAffects"); return stat; }
+		if (!stat) { stat.perror("attributeAffects"); return stat;}
 	stat = attributeAffects(inAim, outHitPoint);
-		if (!stat) { stat.perror("attributeAffects"); return stat; }
+		if (!stat) { stat.perror("attributeAffects"); return stat;}
+	stat = attributeAffects(inAimAxis, outHitPoint);
+		if (!stat) { stat.perror("attributeAffects"); return stat;}
+	stat = attributeAffects(inSourceMatrix, outHitPoint);
+		if (!stat) { stat.perror("attributeAffects"); return stat;}
+	stat = attributeAffects(inOffset, outHitPoint);
+		if (!stat) { stat.perror("attributeAffects"); return stat;}
+	stat = attributeAffects(inOfsVectorEnum, outHitPoint);
+		if (!stat) { stat.perror("attributeAffects"); return stat;}
+	stat = attributeAffects(inMode, outHitPoint);
+		if (!stat) { stat.perror("attributeAffects"); return stat;}
+	
 
 	stat = attributeAffects(inMesh, outNormal);
-		if (!stat) { stat.perror("attributeAffects"); return stat; }
-	stat = attributeAffects(inSource, outNormal);
-		if (!stat) { stat.perror("attributeAffects"); return stat; }
+		if (!stat) { stat.perror("attributeAffects"); return stat;}
+	stat = attributeAffects(inSourceMatrix, outNormal);
+		if (!stat) { stat.perror("attributeAffects"); return stat;}
+	stat = attributeAffects(inAimAxis, outNormal);
+		if (!stat) { stat.perror("attributeAffects"); return stat;}
 	stat = attributeAffects(inAim, outNormal);
+		if (!stat) { stat.perror("attributeAffects"); return stat;}
+	stat = attributeAffects(inUpVector, outNormal);
+		if (!stat) { stat.perror("attributeAffects"); return stat;}
+	stat = attributeAffects(inMode, outNormal);
+		if (!stat) { stat.perror("attributeAffects"); return stat;}
+
+	stat = attributeAffects(inMesh, outRotation);
+		if (!stat) { stat.perror("attributeAffects"); return stat; }
+	stat = attributeAffects(inSourceMatrix, outRotation);
+		if (!stat) { stat.perror("attributeAffects"); return stat; }
+	stat = attributeAffects(inAimAxis, outRotation);
+		if (!stat) { stat.perror("attributeAffects"); return stat; }
+	stat = attributeAffects(inAim, outRotation);
+		if (!stat) { stat.perror("attributeAffects"); return stat; }
+	stat = attributeAffects(inUpVector, outRotation);
+		if (!stat) { stat.perror("attributeAffects"); return stat; }
+	stat = attributeAffects(inMode, outRotation);
 		if (!stat) { stat.perror("attributeAffects"); return stat; }
 
-		return MS::kSuccess;
+	stat = attributeAffects(inMesh, outHitDistance);
+		if (!stat) { stat.perror("attributeAffects"); return stat; }
+	stat = attributeAffects(inSourceMatrix, outHitDistance);
+		if (!stat) { stat.perror("attributeAffects"); return stat; }
+	stat = attributeAffects(inAimAxis, outHitDistance);
+		if (!stat) { stat.perror("attributeAffects"); return stat; }
+	stat = attributeAffects(inAim, outHitDistance);
+		if (!stat) { stat.perror("attributeAffects"); return stat; }
+	stat = attributeAffects(inUpVector, outHitDistance);
+		if (!stat) { stat.perror("attributeAffects"); return stat; }
+	stat = attributeAffects(inMode, outHitDistance);
+		if (!stat) { stat.perror("attributeAffects"); return stat; }
+
+	stat = attributeAffects(inSourceMatrix, outSourcePt);
+		if (!stat) { stat.perror("attributeAffects"); return stat; }
+	stat = attributeAffects(inOffset, outSourcePt);
+		if (!stat) { stat.perror("attributeAffects"); return stat; }
+
+
+	return MS::kSuccess;
 }
 
 MStatus initializePlugin(MObject obj)
 {
 	MStatus status;
-	MFnPlugin plugin(obj, PLUGIN_COMPANY, "1.0", "Any");
+	MFnPlugin plugin(obj, "Dmitrii Shevchenko", "1.0", "2019");
 
 	status = plugin.registerNode("dsRaycast", Raycast::id, Raycast::creator, Raycast::initialize);
 
