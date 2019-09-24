@@ -24,7 +24,6 @@ MString Raycast::AETemplate(MString nodeName)
 	AEStr += "            editorTemplate -addControl \"offsetVector\";\n";
 	AEStr += "            editorTemplate -addControl \"offset\";\n";
 	AEStr += "        editorTemplate -endLayout;";
-	AEStr += "        AEdependNodeTemplate " + nodeName +";";
 	AEStr += "		  editorTemplate -addExtraControls;";
 	AEStr += "editorTemplate -suppress \"targetMesh\";";
 	AEStr += "editorTemplate -endScrollLayout;\n";
