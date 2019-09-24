@@ -7,8 +7,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dsRaycastNode", "dsRaycastN
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dsDrawVectorNode", "dsDrawVectorNode\dsDrawVectorNode.vcxproj", "{4972B929-C0E6-4206-BCCB-E4705ACC47A3}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dsNodes", "dsNodes\dsNodes.vcxproj", "{37FAA0C1-C9E2-44D0-A022-CF64C1FD3481}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -33,14 +31,6 @@ Global
 		{4972B929-C0E6-4206-BCCB-E4705ACC47A3}.Release|x64.Build.0 = Release|x64
 		{4972B929-C0E6-4206-BCCB-E4705ACC47A3}.Release|x86.ActiveCfg = Release|Win32
 		{4972B929-C0E6-4206-BCCB-E4705ACC47A3}.Release|x86.Build.0 = Release|Win32
-		{37FAA0C1-C9E2-44D0-A022-CF64C1FD3481}.Debug|x64.ActiveCfg = Debug|x64
-		{37FAA0C1-C9E2-44D0-A022-CF64C1FD3481}.Debug|x64.Build.0 = Debug|x64
-		{37FAA0C1-C9E2-44D0-A022-CF64C1FD3481}.Debug|x86.ActiveCfg = Debug|Win32
-		{37FAA0C1-C9E2-44D0-A022-CF64C1FD3481}.Debug|x86.Build.0 = Debug|Win32
-		{37FAA0C1-C9E2-44D0-A022-CF64C1FD3481}.Release|x64.ActiveCfg = Release|x64
-		{37FAA0C1-C9E2-44D0-A022-CF64C1FD3481}.Release|x64.Build.0 = Release|x64
-		{37FAA0C1-C9E2-44D0-A022-CF64C1FD3481}.Release|x86.ActiveCfg = Release|Win32
-		{37FAA0C1-C9E2-44D0-A022-CF64C1FD3481}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

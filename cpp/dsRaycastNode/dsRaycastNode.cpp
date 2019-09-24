@@ -1,6 +1,17 @@
 #include "dsRaycastNode.h"
 
 
+void Raycast::debugRayCallback()
+{
+	//TODO: debug ray callback
+}
+
+void Raycast::postConstructor()
+{
+	MObject thisNode = thisMObject();
+	//MNodeMessage::addAttributeChangedCallback()
+}
+
 MStatus Raycast::compute(const MPlug &plug, MDataBlock &data)
 {
 	MStatus returnStatus;

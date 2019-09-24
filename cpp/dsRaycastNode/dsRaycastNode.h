@@ -21,6 +21,7 @@
 #include <maya/MFnEnumAttribute.h>
 #include <maya/MFnMatrixAttribute.h>
 #include <maya/MUserData.h>
+#include <maya/MNodeMessage.h>
 
 
 class Raycast : public MPxNode
@@ -30,6 +31,7 @@ public:
 	~Raycast() override;
 
 	MStatus compute(const MPlug& plug, MDataBlock &data) override;
+	void postConstructor();
 
 	static void* creator();
 	static MStatus initialize();
@@ -59,6 +61,9 @@ public:
 	static MObject outRotation;
 	static MObject outHitDistance;
 	static MObject outSourcePt;
+
+private:
+	static void debugRayCallback();
 };
 
 MTypeId Raycast::id(0x09833);
