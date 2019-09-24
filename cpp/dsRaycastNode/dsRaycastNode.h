@@ -22,6 +22,7 @@
 #include <maya/MFnMatrixAttribute.h>
 #include <maya/MUserData.h>
 #include <maya/MNodeMessage.h>
+#include <maya/MGlobal.h>
 
 
 class Raycast : public MPxNode
@@ -31,7 +32,6 @@ public:
 	~Raycast() override;
 
 	MStatus compute(const MPlug& plug, MDataBlock &data) override;
-	void postConstructor();
 
 	static void* creator();
 	static MStatus initialize();
@@ -39,6 +39,7 @@ public:
 public:
 	//INPUTS
 	static MTypeId id;
+	static MString nodeName;
 	static MObject inMesh;
 	static MObject inMode;
 	static MObject inSourceMatrix;
@@ -49,7 +50,7 @@ public:
 	static MObject inBothWays;
 	static MObject inOffset;
 	static MObject inOfsVectorEnum;
-	static MObject inDebug;
+	//static MObject inDebug;
 	
 
 	//OUTPUTS
@@ -62,11 +63,12 @@ public:
 	static MObject outHitDistance;
 	static MObject outSourcePt;
 
-private:
-	static void debugRayCallback();
+public:
+	static MString AETemplate(MString);
 };
 
 MTypeId Raycast::id(0x09833);
+MString Raycast::nodeName("dsRaycast");
 MObject Raycast::inMesh;
 MObject Raycast::inMode;
 MObject Raycast::inSourceMatrix;
@@ -77,7 +79,7 @@ MObject Raycast::inDistance;
 MObject Raycast::inBothWays;
 MObject Raycast::inOffset;
 MObject Raycast::inOfsVectorEnum;
-MObject Raycast::inDebug;
+//MObject Raycast::inDebug;
 
 MObject Raycast::outHitPoint;
 MObject Raycast::outNormal;

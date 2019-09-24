@@ -1,16 +1,37 @@
 #include "dsRaycastNode.h"
 
-
-void Raycast::debugRayCallback()
+MString Raycast::AETemplate(MString nodeName)
 {
-	//TODO: debug ray callback
+	MString AEStr = "";
+	AEStr += "global proc AE" + nodeName + "Template(string $nodeName)\n";
+	AEStr += "{\n";
+	AEStr += "editorTemplate -beginScrollLayout;\n";
+	AEStr += "        editorTemplate -beginLayout \"Ray Attributes\" -collapse 0 ;";
+	AEStr += "            editorTemplate -addControl \"mode\";\n";
+	AEStr += "            editorTemplate -addControl \"aimAxis\";\n";
+	AEStr += "            editorTemplate -addControl \"sourceMatrix\";\n";
+	AEStr += "            editorTemplate -addControl \"aim\";\n";
+	AEStr += "        editorTemplate -endLayout;";
+
+	AEStr += "        editorTemplate -beginLayout \"Casting Attributes\" -collapse 0 ;";
+	AEStr += "            editorTemplate -addControl \"castDistance\";\n";
+	AEStr += "            editorTemplate -addControl \"bothWays\";\n";
+	AEStr += "        editorTemplate -endLayout;";
+
+	AEStr += "        editorTemplate -beginLayout \"Hitpoint Attributes\" -collapse 0 ;";
+	AEStr += "            editorTemplate -addControl \"upVector\";\n";
+	AEStr += "            editorTemplate -addControl \"rotate\";\n";
+	AEStr += "            editorTemplate -addControl \"offsetVector\";\n";
+	AEStr += "            editorTemplate -addControl \"offset\";\n";
+	AEStr += "        editorTemplate -endLayout;";
+	AEStr += "        AEdependNodeTemplate " + nodeName +";";
+	AEStr += "		  editorTemplate -addExtraControls;";
+	AEStr += "editorTemplate -suppress \"targetMesh\";";
+	AEStr += "editorTemplate -endScrollLayout;\n";
+	AEStr += "}\n";
+	return AEStr;
 }
 
-void Raycast::postConstructor()
-{
-	MObject thisNode = thisMObject();
-	//MNodeMessage::addAttributeChangedCallback()
-}
 
 MStatus Raycast::compute(const MPlug &plug, MDataBlock &data)
 {
@@ -39,8 +60,8 @@ MStatus Raycast::compute(const MPlug &plug, MDataBlock &data)
 		CHECK_MSTATUS(returnStatus);
 		MDataHandle inOfsVectorEnumHandle = data.inputValue(inOfsVectorEnum, &returnStatus);
 		CHECK_MSTATUS(returnStatus);
-		MDataHandle inDebugHandle = data.inputValue(inDebug, &returnStatus);
-		CHECK_MSTATUS(returnStatus);
+		//MDataHandle inDebugHandle = data.inputValue(inDebug, &returnStatus);
+		//CHECK_MSTATUS(returnStatus);
 		
 		//OUTPUT HANDLES
 		MDataHandle outHitHandle = data.outputValue(outHitPoint, &returnStatus);
@@ -60,7 +81,7 @@ MStatus Raycast::compute(const MPlug &plug, MDataBlock &data)
 
 
 		//GET DATA OFF HANDLES
-		bool inDebug = inDebugHandle.asBool();
+		//bool inDebug = inDebugHandle.asBool();
 		MFnMesh fnMesh(inMeshHandle.data());
 		MFloatVector inAim = inAimHandle.asFloatVector();
 		MVector inUpVector = inUpVectorHandle.asVector();
@@ -207,7 +228,7 @@ MStatus Raycast::initialize()
 
 	//INPUT
 	//Debug
-	inDebug = numericAttributeFn.create("debugRay", "debugRay", MFnNumericData::kBoolean, 0);
+	//inDebug = numericAttributeFn.create("debugRay", "debugRay", MFnNumericData::kBoolean, 0);
 
 	//Mesh
 	inMesh = typedAttributeFn.create("targetMesh", "tm", MFnData::kMesh);
@@ -275,8 +296,8 @@ MStatus Raycast::initialize()
 
 	//ADD ATTRIBUTES
 	//Input
-	stat = addAttribute(inDebug);
-		if (!stat) { stat.perror("addAttribute"); return stat;}
+	//stat = addAttribute(inDebug);
+		//if (!stat) { stat.perror("addAttribute"); return stat;}
 	stat = addAttribute(inMesh);
 		if (!stat) { stat.perror("addAttribute"); return stat;}
 	stat = addAttribute(inMode);
@@ -387,11 +408,14 @@ MStatus initializePlugin(MObject obj)
 {
 	MStatus status;
 	MFnPlugin plugin(obj, "Dmitrii Shevchenko", "1.0", "2019");
-
+	MGlobal::executeCommand(Raycast::AETemplate(Raycast::nodeName));
+	
 	status = plugin.registerNode("dsRaycast", 
 								Raycast::id, 
 								Raycast::creator, 
 								Raycast::initialize);
+
+	//MGlobal::executeCommand("refreshEditorTemplates; refreshAE;");
 
 	if (!status)
 	{
