@@ -1,0 +1,17 @@
+global proc AEdsRaycastTemplate( string $nodeName )
+{
+    editorTemplate -beginScrollLayout;
+        editorTemplate -beginLayout "Roll attributes" -collapse 0 ;
+
+            editorTemplate -addControl "distance";
+            editorTemplate -addControl "radius";
+            editorTemplate -addControl "rotation";
+            
+        editorTemplate -endLayout;
+
+        AEdependNodeTemplate $nodeName;
+    
+        editorTemplate -addExtraControls;
+
+    editorTemplate -endScrollLayout;
+}
