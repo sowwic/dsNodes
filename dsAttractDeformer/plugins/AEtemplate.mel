@@ -1,0 +1,48 @@
+global proc AEprAttractNodeTemplate( string $nodeName )
+{
+    AEswatchDisplay $nodeName;
+    editorTemplate -beginScrollLayout;
+        // include/call base class/node attributes
+        AEgeometryFilterCommon $nodeName;
+        // custom attributes
+        editorTemplate -beginLayout "Attract attributes" -collapse 0;
+            editorTemplate -addControl "maximumDistance";
+            AEaddRampControl ($nodeName+".falloff");
+            AEaddRampControl ($nodeName+".maxDistanceUv");
+        editorTemplate -beginLayout "Normal Vector" -collapse 0;
+            editorTemplate -addControl "projectOnNormal";
+            editorTemplate -addControl "normalDirectionLimit";
+        editorTemplate -endLayout;
+        // add missing attrs (should be none)
+        editorTemplate -addExtraControls;
+        // node behavior
+        AEgeometryFilterInclude $nodeName;
+    editorTemplate -endScrollLayout;
+    // hide attrs from 
+    editorTemplate -suppress "weightList";
+    editorTemplate -suppress "inputShape";
+    editorTemplate -suppress "inputMatrix";
+};
+global proc prAttractNode()
+{
+    string $sel[] = `ls -sl -type "transform"`;
+    if( size($sel) != 2 )
+        error "Script requires two transforms to be selected.";
+    
+    string $driverShapes[] = `listRelatives -children $sel[0]`;
+    string $drivenShapes[] = `listRelatives -children $sel[1]`;
+    string $drivenShapeType = objectType($driverShapes[0]);
+    if( $drivenShapeType != "mesh" &&
+        $drivenShapeType != "nurbsCurve" &&
+        $drivenShapeType != "nurbsSurface" )
+        error ("Invalid driver shape type. Should be mesh/nurbsCurve/nurbsSurface, but got: "+objectType($driverShapes[0]));
+    if( objectType($drivenShapes[0]) != "mesh" )
+        error ("Invalid driven shape type. Should be mesh. Instead got: "+objectType($drivenShapes[0]));
+    
+    string $def[] = `deformer -type prAttractNode $sel[1]`;
+    connectAttr( $sel[0]+".worldMatrix[0]", $def[0]+".inputMatrix" );
+    if( $drivenShapeType == "mesh" )
+        connectAttr( $driverShapes[0]+".outMesh", $def[0]+".inputShape" );
+    else
+        connectAttr( $driverShapes[0]+".local", $def[0]+".inputShape" );
+};
