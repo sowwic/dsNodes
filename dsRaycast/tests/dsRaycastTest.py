@@ -7,7 +7,7 @@ MAYA_APP_DIR = mel.eval('getenv ("MAYA_APP_DIR")')
 mc.file(new=1,f=1)
 mc.unloadPlugin("dsRaycast")
 mc.unloadPlugin('drawVector')
-mc.loadPlugin(os.path.join(MAYA_APP_DIR, 'scripts\dsNodes\dsDrawVector\plugins\drawVector.py'))
+mc.loadPlugin(os.path.join(MAYA_APP_DIR, 'scripts\dsNodes\dsDrawVector\plugins\dsDrawVector.py'))
 mc.loadPlugin(os.path.join(MAYA_APP_DIR, 'scripts\dsNodes\dsRaycast\plugins\dsRaycast.py'))
 
 ###### Test #########

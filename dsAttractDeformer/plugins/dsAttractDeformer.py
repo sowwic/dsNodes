@@ -10,8 +10,9 @@ class DsAttractDeformer(ommpx.MPxDeformerNode):
     VENDOR = 'Dmitrii Shevchenko'
     VERSION = '1.0'
     MAYAVERSION = '2020'
-    NODENAME = 'dsAttractDeformer'
+    NODENAME = 'dsAttract'
     NODEID = om.MTypeId(0x09113)
+    MAYA_APP_DIR = mel.eval('getenv ("MAYA_APP_DIR")')
 
     MAX_ANGLE = 0.5 * 3.14159265 #90 degrees
 
@@ -236,7 +237,7 @@ class DsAttractDeformer(ommpx.MPxDeformerNode):
         cls.maxDistance = numericFn.create("maximumDistance", "maxDist", om.MFnNumericData.kFloat, 1.0)
         numericFn.setKeyable(True)
         numericFn.setMin(0.0)
-        numericFn.setMax(6.0)
+        numericFn.setMax(50.0)
 
         cls.aProjectOnNormal = numericFn.create("projectOnNormal", "projectOnNormal", om.MFnNumericData.kFloat, 0.0)
         numericFn.setKeyable(True)
@@ -295,9 +296,10 @@ def initializePlugin(obj):
     except RuntimeError:
         sys.stderr.write('Failed to register node: {0}'.format( DsAttractDeformer.NODENAME))
 
-aeTemplate = open(os.path.join(mel.eval('getenv ("MAYA_APP_DIR")'), 'scripts\dsNodes\dsAttractDeformer\plugins\AEtemplate.mel'), "r").read()
+aeTemplate = open(os.path.join(DsAttractDeformer.MAYA_APP_DIR, 'scripts\dsNodes\dsAttractDeformer\plugins\AEtemplate.mel'), "r").read()
 mel.eval(aeTemplate)
 mel.eval("refreshEditorTemplates; refreshAE;")
+mel.eval('makePaintable -attrType "multiFloat" -sm "deformer" "dsAttract" "weights";')
 
 
 def uninitializePlugin(obj):

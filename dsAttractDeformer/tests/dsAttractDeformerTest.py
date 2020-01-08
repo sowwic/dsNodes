@@ -14,6 +14,6 @@ pm.openFile(os.path.join(MAYA_APP_DIR, "scripts\dsNodes\dsAttractDeformer\\tests
 
 
 #### TEST ####
-dsAttractDeformer = pm.deformer("pTorus1", typ="dsAttractDeformer")[0]
+dsAttractDeformer = pm.deformer("pTorus1", typ="dsAttract")[0]
 pm.connectAttr("sticky_CRVShape.local", dsAttractDeformer+".inputShape")
 pm.connectAttr("sticky_CRV.worldMatrix[0]", dsAttractDeformer+".inputMatrix")
