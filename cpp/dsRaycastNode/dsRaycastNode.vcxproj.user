@@ -1,12 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <RemoteDebuggerCommand>D:\Program Files\Autodesk\Maya2019\bin\maya.exe</RemoteDebuggerCommand>
+    <RemoteDebuggerCommand>D:\Program Files\Autodesk\Maya2020\bin\maya.exe</RemoteDebuggerCommand>
     <RemoteDebuggerAttach>true</RemoteDebuggerAttach>
     <DebuggerFlavor>WindowsRemoteDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <RemoteDebuggerCommand>D:\Program Files\Autodesk\Maya2019\bin\maya.exe</RemoteDebuggerCommand>
+    <RemoteDebuggerAttach>true</RemoteDebuggerAttach>
+    <DebuggerFlavor>WindowsRemoteDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Maya2020|x64'">
+    <RemoteDebuggerCommand>D:\Program Files\Autodesk\Maya2020\bin\maya.exe</RemoteDebuggerCommand>
     <RemoteDebuggerAttach>true</RemoteDebuggerAttach>
     <DebuggerFlavor>WindowsRemoteDebugger</DebuggerFlavor>
   </PropertyGroup>

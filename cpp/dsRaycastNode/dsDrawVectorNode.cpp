@@ -211,7 +211,6 @@ void DrawVectorDrawOverride::addUIDrawables(
 
 	//DRAWING VECTOR
 	drawManager.beginDrawable(MUIDrawManager::kNonSelectable);
-	MGlobal::displayInfo(MString("Drawing"));
 	drawManager.setColor(pLocatorData->fColor);
 	drawManager.setDepthPriority(5);
 	drawManager.setLineWidth(pLocatorData->fWidth);

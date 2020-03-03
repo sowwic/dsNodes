@@ -112,3 +112,24 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+cpp/.vs/cpp/v15/Browse.VC.opendb
+cpp/.vs/cpp/v15/Browse.VC.db
+cpp/.vs/cpp/v15/ipch/AutoPCH/4e731a43a92114db/DSRAYCASTNODE.ipch
+*.ipch
+*.exp
+*.tlog
+*.obj
+*.iobj
+*.ipdb
+*.pdb
+*.vcxproj
+*.filters
+*.user
+*.pdb
+*.sln
+*.db-wal
+*.db-shm
+*.db
+*.ipch
+*.db
+cpp/.vs/cpp/v15/.suo

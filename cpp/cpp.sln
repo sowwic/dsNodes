@@ -7,30 +7,19 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dsRaycastNode", "dsRaycastN
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dsDrawVectorNode", "dsDrawVectorNode\dsDrawVectorNode.vcxproj", "{4972B929-C0E6-4206-BCCB-E4705ACC47A3}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dsAttractDeformer", "dsAttractDeformer\dsAttractDeformer.vcxproj", "{3C4C853F-DF2E-4028-9E17-DB99282F5D45}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|x64 = Debug|x64
-		Debug|x86 = Debug|x86
-		Release|x64 = Release|x64
-		Release|x86 = Release|x86
+		Maya2020|x64 = Maya2020|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{9E357C52-B9F5-46DF-9CC5-E9C088908DBF}.Debug|x64.ActiveCfg = Debug|x64
-		{9E357C52-B9F5-46DF-9CC5-E9C088908DBF}.Debug|x64.Build.0 = Debug|x64
-		{9E357C52-B9F5-46DF-9CC5-E9C088908DBF}.Debug|x86.ActiveCfg = Debug|Win32
-		{9E357C52-B9F5-46DF-9CC5-E9C088908DBF}.Debug|x86.Build.0 = Debug|Win32
-		{9E357C52-B9F5-46DF-9CC5-E9C088908DBF}.Release|x64.ActiveCfg = Release|x64
-		{9E357C52-B9F5-46DF-9CC5-E9C088908DBF}.Release|x64.Build.0 = Release|x64
-		{9E357C52-B9F5-46DF-9CC5-E9C088908DBF}.Release|x86.ActiveCfg = Release|Win32
-		{9E357C52-B9F5-46DF-9CC5-E9C088908DBF}.Release|x86.Build.0 = Release|Win32
-		{4972B929-C0E6-4206-BCCB-E4705ACC47A3}.Debug|x64.ActiveCfg = Debug|x64
-		{4972B929-C0E6-4206-BCCB-E4705ACC47A3}.Debug|x64.Build.0 = Debug|x64
-		{4972B929-C0E6-4206-BCCB-E4705ACC47A3}.Debug|x86.ActiveCfg = Debug|Win32
-		{4972B929-C0E6-4206-BCCB-E4705ACC47A3}.Debug|x86.Build.0 = Debug|Win32
-		{4972B929-C0E6-4206-BCCB-E4705ACC47A3}.Release|x64.ActiveCfg = Release|x64
-		{4972B929-C0E6-4206-BCCB-E4705ACC47A3}.Release|x64.Build.0 = Release|x64
-		{4972B929-C0E6-4206-BCCB-E4705ACC47A3}.Release|x86.ActiveCfg = Release|Win32
-		{4972B929-C0E6-4206-BCCB-E4705ACC47A3}.Release|x86.Build.0 = Release|Win32
+		{9E357C52-B9F5-46DF-9CC5-E9C088908DBF}.Maya2020|x64.ActiveCfg = Maya2020|x64
+		{9E357C52-B9F5-46DF-9CC5-E9C088908DBF}.Maya2020|x64.Build.0 = Maya2020|x64
+		{4972B929-C0E6-4206-BCCB-E4705ACC47A3}.Maya2020|x64.ActiveCfg = Maya2020|x64
+		{4972B929-C0E6-4206-BCCB-E4705ACC47A3}.Maya2020|x64.Build.0 = Maya2020|x64
+		{3C4C853F-DF2E-4028-9E17-DB99282F5D45}.Maya2020|x64.ActiveCfg = Maya2020|x64
+		{3C4C853F-DF2E-4028-9E17-DB99282F5D45}.Maya2020|x64.Build.0 = Maya2020|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

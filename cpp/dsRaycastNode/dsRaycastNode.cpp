@@ -406,7 +406,7 @@ MStatus Raycast::initialize()
 MStatus initializePlugin(MObject obj)
 {
 	MStatus status;
-	MFnPlugin plugin(obj, "Dmitrii Shevchenko", "1.0", "2019");
+	MFnPlugin plugin(obj, "Dmitrii Shevchenko", "1.0", "2020");
 	MGlobal::executeCommand(Raycast::AETemplate(Raycast::nodeName));
 	
 	status = plugin.registerNode("dsRaycast", 

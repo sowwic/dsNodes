@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <TargetExt>.mll</TargetExt>
+    <OutDir>$(ProjectDir)\builds\debug\</OutDir>
+    <IntDir>$(ProjectDir)\builds\intermediate\</IntDir>
+    <IncludePath>D:\Program Files\Autodesk\Maya2020\include;$(IncludePath)</IncludePath>
+    <_PropertySheetDisplayName>maya2020Preset</_PropertySheetDisplayName>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <Link>
+      <AdditionalLibraryDirectories>D:\Program Files\Autodesk\Maya2020\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>OpenMaya.lib;OpenMayaRender.lib;OpenMayaUI.lib;Foundation.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup />
+</Project>
