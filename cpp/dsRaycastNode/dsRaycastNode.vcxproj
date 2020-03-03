@@ -5,6 +5,14 @@
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Maya2019|Win32">
+      <Configuration>Maya2019</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Maya2019|x64">
+      <Configuration>Maya2019</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Maya2020|Win32">
       <Configuration>Maya2020</Configuration>
       <Platform>Win32</Platform>
@@ -73,6 +81,14 @@
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Maya2019|Win32'">
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Maya2019|x64'">
+    <PlatformToolset>v141</PlatformToolset>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
@@ -120,6 +136,12 @@
     <IntDir>$(ProjectDir)\intermediate\Maya2020\</IntDir>
     <TargetExt>.mll</TargetExt>
     <IncludePath>D:\Program Files\Autodesk\Maya2020\include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Maya2019|x64'">
+    <TargetExt>.mll</TargetExt>
+    <OutDir>$(ProjectDir)\builds\Maya2019\</OutDir>
+    <IntDir>$(ProjectDir)\builds\intermediate\Maya2019\</IntDir>
+    <IncludePath>D:\Program Files\Autodesk\Maya2019\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -204,6 +226,30 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>D:\Program Files\Autodesk\Maya2020\lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>OpenMaya.lib;OpenMayaRender.lib;OpenMayaUI.lib;Foundation.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Maya2019|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>D:\Program Files\Autodesk\Maya2019\include;$(IncludePath)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Maya2019|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Maya2019|x64'">
+    <ClCompile>
+      <SDLCheck>false</SDLCheck>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Maya2019|x64'">
+    <ClCompile>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>D:\Program Files\Autodesk\Maya2019\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>OpenMaya.lib;OpenMayaRender.lib;OpenMayaUI.lib;OpenMayaAnim.lib;Foundation.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

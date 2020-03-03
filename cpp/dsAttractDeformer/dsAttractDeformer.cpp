@@ -204,7 +204,7 @@ MStatus DsAttractDeformer::deform(MDataBlock& block,
 	else if (typeInputShape == MFnNurbsCurveData::kNurbsSurface)
 	{
 		strInputShapeType = "nurbs";
-		returnStatus = fnTargetNurbsCurve.setObject(dagPathInputShape);
+		returnStatus = fnTargetNurbsSurface.setObject(dagPathInputShape);
 		CHECK_MSTATUS(returnStatus);
 	}
 
