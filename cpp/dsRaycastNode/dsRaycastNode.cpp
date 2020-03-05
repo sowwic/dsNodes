@@ -10,7 +10,7 @@ MString Raycast::AETemplate(MString nodeName)
 	AEStr += "            editorTemplate -addControl \"mode\";\n";
 	AEStr += "            editorTemplate -addControl \"aimAxis\";\n";
 	AEStr += "            editorTemplate -addControl \"sourceMatrix\";\n";
-	AEStr += "            editorTemplate -addControl \"aim\";\n";
+	AEStr += "            editorTemplate -addControl \"aimMatrix\";\n";
 	AEStr += "        editorTemplate -endLayout;";
 
 	AEStr += "        editorTemplate -beginLayout \"Casting Attributes\" -collapse 0 ;";
@@ -75,14 +75,12 @@ MStatus Raycast::compute(const MPlug &plug, MDataBlock &data)
 		CHECK_MSTATUS(returnStatus);
 		MDataHandle outHitDistanceHandle = data.outputValue(outHitDistance, &returnStatus);
 		CHECK_MSTATUS(returnStatus);
-		MDataHandle outSourcePtHandle = data.outputValue(outSourcePt, &returnStatus);
-		CHECK_MSTATUS(returnStatus);
-
+	
 
 		//GET DATA OFF HANDLES
 		//bool inDebug = inDebugHandle.asBool();
 		MFnMesh fnMesh(inMeshHandle.data());
-		MFloatVector inAim = inAimHandle.asFloatVector();
+		MMatrix inAim = inAimHandle.asMatrix();
 		MVector inUpVector = inUpVectorHandle.asVector();
 		float inDistance = inDistanceHandle.asFloat();
 		bool inBothWays = inBotheWaysHandle.asBool();
@@ -102,11 +100,15 @@ MStatus Raycast::compute(const MPlug &plug, MDataBlock &data)
 		double sourceTranslate[] = { inSourceMatrix(3, 0), inSourceMatrix(3,1), inSourceMatrix(3,2) };
 		MFloatPoint sourcePoint = MFloatPoint(sourceTranslate[0], sourceTranslate[1], sourceTranslate[2]);
 
+		//GET AIM POINT FROM MATRIX
+		double aimTranslate[] = { inAim(3, 0), inAim(3, 1), inAim(3, 2)};
+		MFloatPoint aimPoint = MFloatPoint(aimTranslate[0], aimTranslate[1], aimTranslate[2]);
+
 		//GET AIM VECTOR
 		MFloatVector aimVector;
 		if (inMode == 0)
 		{
-			aimVector = MFloatVector(inAim.x - sourceTranslate[0], inAim.y - sourceTranslate[1], inAim.z - sourceTranslate[2]); //Relative vector
+			aimVector = MFloatVector(aimPoint.x - sourcePoint.x , aimPoint.y - sourcePoint.y, aimPoint.z - sourcePoint.z); //Relative vector
 		}
 		else if (inMode == 1)
 		{
@@ -192,7 +194,6 @@ MStatus Raycast::compute(const MPlug &plug, MDataBlock &data)
 		outRotationYHandle.setMAngle(eulerRotY);
 		outRotationZHandle.setMAngle(eulerRotZ);
 		outHitDistanceHandle.setFloat(fHitRayParams);
-		outSourcePtHandle.setMFloatVector(MFloatVector(sourcePoint));
 
 		outHitHandle.setClean();
 		outNormalHandle.setClean();
@@ -200,7 +201,6 @@ MStatus Raycast::compute(const MPlug &plug, MDataBlock &data)
 		outRotationYHandle.setClean();
 		outRotationZHandle.setClean();
 		outHitDistanceHandle.setClean();
-		outSourcePtHandle.setClean();
 
 	}else{
 		return MS::kUnknownParameter;
@@ -245,10 +245,10 @@ MStatus Raycast::initialize()
 	enumAttributeFn.addField("Z", 2);
 
 	//Source matrix
-	inSourceMatrix = matrixAttributeFn.create("sourceMatrix", "sourceMatrix");
+	inSourceMatrix = matrixAttributeFn.create("sourceMatrix", "sourceMtx");
 	
-	//Aim
-	inAim = numericAttributeFn.createPoint("aim", "aim");
+	//Aim matrix
+	inAim = matrixAttributeFn.create("aimMatrix", "aimMtx");
 
 	//Up vector
 	inUpVector = numericAttributeFn.createPoint("upVector", "upVector");
@@ -287,9 +287,6 @@ MStatus Raycast::initialize()
 	outHitDistance = numericAttributeFn.create("hitDistance", "hitDistance", MFnNumericData::kFloat);
 	numericAttributeFn.setWritable(false);
 
-	//Source point
-	outSourcePt = numericAttributeFn.createPoint("sourcePoint", "sourcePoint");
-	numericAttributeFn.setWritable(false);
 
 
 
@@ -326,8 +323,6 @@ MStatus Raycast::initialize()
 	stat = addAttribute(outRotation);
 		if (!stat) { stat.perror("addAttribute"); return stat;}
 	stat = addAttribute(outHitDistance);
-		if (!stat) { stat.perror("addAttribute"); return stat;}
-	stat = addAttribute(outSourcePt);
 		if (!stat) { stat.perror("addAttribute"); return stat;}
 
 
@@ -385,11 +380,6 @@ MStatus Raycast::initialize()
 	stat = attributeAffects(inUpVector, outHitDistance);
 		if (!stat) { stat.perror("attributeAffects"); return stat; }
 	stat = attributeAffects(inMode, outHitDistance);
-		if (!stat) { stat.perror("attributeAffects"); return stat; }
-
-	stat = attributeAffects(inSourceMatrix, outSourcePt);
-		if (!stat) { stat.perror("attributeAffects"); return stat; }
-	stat = attributeAffects(inOffset, outSourcePt);
 		if (!stat) { stat.perror("attributeAffects"); return stat; }
 
 
