@@ -36,7 +36,7 @@ MStatus Raycast::compute(const MPlug &plug, MDataBlock &data)
 {
 	MStatus returnStatus;
 
-	if (plug == outHitPoint | plug == outNormal)
+	if ((plug == outHitPoint) || (plug == outNormal) || (plug == outHitDistance) || (plug == outRotation))
 	{	
 		//INPUT HANDLES
 		MDataHandle inMeshHandle = data.inputValue(inMesh, &returnStatus);
