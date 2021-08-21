@@ -1,0 +1,38 @@
+global proc AEdsRaycastTemplate( string $nodeName )
+{
+    editorTemplate -beginScrollLayout;
+        editorTemplate -beginLayout "Ray Attributes" -collapse 0 ;
+
+            editorTemplate -addControl "mode";
+            editorTemplate -addControl "aimAxis";
+            editorTemplate -addControl "sourceMatrix";
+            editorTemplate -addControl "aim";
+            editorTemplate -addControl "debugRay";
+            
+        
+        editorTemplate -endLayout;
+
+        editorTemplate -beginLayout "Casting Attributes" -collapse 0 ;
+
+            editorTemplate -addControl "castDistance";
+            editorTemplate -addControl "bothWays";
+        
+        editorTemplate -endLayout;
+
+        editorTemplate -beginLayout "Hitpoint Attributes" -collapse 0 ;
+
+            editorTemplate -addControl "upVector";
+            editorTemplate -addControl "rotate";
+            editorTemplate -addControl "offsetVector";
+            editorTemplate -addControl "offset";
+        
+        editorTemplate -endLayout;
+
+        AEdependNodeTemplate $nodeName;
+    
+        editorTemplate -addExtraControls;
+            
+    editorTemplate -suppress "targetMesh";
+
+    editorTemplate -endScrollLayout;
+}

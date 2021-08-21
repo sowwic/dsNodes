@@ -21,7 +21,11 @@ endif()
 
 
 add_library(${PROJECT_NAME} SHARED 
-                src/dsNodes.cpp)
+                src/dsAttractDeformer.h
+                src/dsAttractDeformer.cpp
+                src/dsRaycast.h
+                src/dsRaycast.cpp
+                src/plugin.cpp)
 
 # Set maya include and link directories
 target_include_directories(${PROJECT_NAME} PUBLIC ${MAYA_INCLUDE_DIR}
