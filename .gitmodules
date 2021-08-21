@@ -1,6 +1,0 @@
-[submodule "dsRaycast"]
-	path = dsRaycast
-	url = https://github.com/S0nic014/dsRaycast
-[submodule "dsAttract_deformer"]
-	path = dsAttract_deformer
-	url = https://github.com/S0nic014/dsAttract_deformer.git
